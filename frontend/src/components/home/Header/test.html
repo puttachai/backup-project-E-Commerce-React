@@ -1,0 +1,105 @@
+<div className={`flex h-14 cursor-pointer items-center gap-2 text-primeColor ${isVisiblejustify ? "justify-between w-full" : ""}`}>  {/*//ref={ref}*/}
+    <div ref={categoryRef} onClick={() => setShow(!show)} className="flex gap-2"> 
+      <HiOutlineMenuAlt4 className="w-5 h-5" />
+      <p className="text-[14px] font-normal">Shop by Category</p>
+
+       {/* Categories Dropdown */}
+    {show && (
+      <motion.ul initial={{ y: 30, opacity: 0 }} animate={{ y: -30, opacity: 1 }} transition={{ duration: 0.5 }} className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6">
+        {/* Dropdown Items */}
+
+        <Link to={"category/imprimante"}>
+           <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+             Imprimante
+           </li>
+         </Link>
+         <Link to={"category/ancre"}>
+           <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+             ancre
+           </li>
+         </Link>
+         <Link to={"category/Ruban"}>
+           <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+             ruban
+           </li>
+         </Link>
+         <Link to={"category/Bac"}>
+           <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
+             Bac de dechet
+           </li>
+         </Link>
+
+      </motion.ul>
+    )}
+    
+    </div>
+
+    {/* User Profile and Cart */}
+  <div ref={userMenuRef} className={`flex gap-4 lg:mt-0 items-center pr-6 cursor-pointer relative ${isVisiblet ? "absolute left-4 justify-between" : "hidden"} `}> {/*className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative" , "flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative " , "absolute left-[0]" : "hidden lg:flex" ,ref={userMenuRef} , onClick={() => setShowUser(!showUser)} */}
+    
+    
+    <div className="flex items-center gap-2">{/*onClick={() => setShowUser(!showUser)} ref={ref}*/}
+    
+      {/* {images[0] &&  <Image className="rounded-full w-8 h-8 object-cover" imgSrc={`${BASE_URL}/images/userprofile/${images[0].image_profile}`}></Image>}
+      <h2>{username}</h2> */}
+      
+      {isLoggedIn && (
+        console.log("userMenuRef status: ", userMenuRef),
+        <div className="flex items-center gap-2">
+          {/* แสดงรูปภาพโปรไฟล์เมื่อผู้ใช้ล็อกอิน */}
+          <img src={imageProfile} className="rounded-full w-8 h-8 object-cover" alt="Profile" />
+          <span>{userName}</span>
+        </div>
+      )}
+
+       {/* <img src={`${imageProfile}`}  className="rounded-full w-8 h-8 object-cover" /> {/*alt="Profile" profile-image
+      
+      
+      <span>{userName}</span> */}
+
+      {/*<FaUser />
+      <FaCaretDown />*/}
+
+    </div>
+
+    <div onClick={() => setShowUser(!showUser)} ref={ref} className="flex items-center"> {/*ref={userMenuRef} ,ref*/}
+      <FaUser />
+      <FaCaretDown />
+    </div>
+
+    {!showUser && (
+      <motion.ul  initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`absolute top-6 z-50 right-0 bg-primeColor  text-[#767676] h-auto p-4 pb-6 `}> {/* w-44* ,${isVisible ?  "left-0":"right-0" }*/}
+        {isLoggedIn ? (
+          <>
+            <Link to="/profile"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Profile</li></Link>
+            <li onClick={handleLogout} className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Logout</li>
+          </>
+        ) : (
+          <>
+          <ul>
+              <li
+                className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer"
+                onClick={handleLoginNavigation}
+              >
+                Login
+              </li>
+              <li
+                className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer"
+                onClick={handleSignUpNavigation}
+              >
+                Sign Up
+              </li>
+            </ul>
+            {/* <Link to="/signin" onClick={() => setShowUser(false)} ><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Login</li></Link>
+            <Link to="/signup" onClick={() => setShowUser(false)} ><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Sign Up</li></Link>
+          */} 
+          </>
+        )}
+
+      </motion.ul>
+    )}
+    <Link to="/cart"><div className="relative"><FaShoppingCart /><span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">{isLoggedIn ?(cartItemCount > 0 ? cartItemCount : 0) :0}</span></div></Link>{/**products.length , products?.cart?.length , cart?.length //// 0cartItemCount.length > 0 ? cartItemCount.length : 0, {cartItemCount > 0 ? cartItemCount : 0}*/}
+    <Link to="/bssuitheartfill"><div className="relative"><BsSuitHeartFill /><span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">{cartItemCount.length > 0 ? cartItemCount.length : 0}</span></div></Link> {/*products*/}
+  </div>
+
+  </div>

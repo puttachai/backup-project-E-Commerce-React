@@ -1,0 +1,72 @@
+
+/*.mySwiper img {
+  width: 100%;
+  height: 100%;
+}*/
+
+.mySwiper {
+  width: 100%;
+  height: 100%;
+}
+
+.swiper-button-next, .swiper-button-prev {
+  color: #fff; /* เปลี่ยนสีลูกศร */
+}
+
+.swiper-pagination-bullet {
+  background-color: #fff; /* เปลี่ยนสี dots */
+}
+
+@media (max-width: 768px) {
+  .swiper-button-next, .swiper-button-prev {
+    display: none; /* ซ่อนลูกศรในหน้าจอขนาดเล็ก */
+  }
+}
+
+.Container-banner{
+  padding-top: 3%;
+  width: 100%;
+  max-width: 1200px; /* สามารถเปลี่ยนขนาดได้ตามต้องการ */
+  min-width: 320px;  /* ขนาดขั้นต่ำเมื่อย่อ */
+  height: auto;
+  margin: 0 auto; /* ทำให้อยู่ตรงกลาง */
+}
+
+.full-image {
+  height: 60vh; /* ลดขนาดความสูงลงจาก 100vh เป็น 70vh */
+  object-fit: cover;
+}
+
+.banner-container {
+  position: relative;
+  overflow: hidden;
+  /*height: auto; */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%; 
+  object-fit: cover; /* คงสัดส่วนของภาพให้พอดีกับกล่อง */
+}
+
+.right-images-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; 
+}
+
+.right-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; 
+  height: 100%;
+}
+
+.right-image-item {
+  width: 100%;
+  height: calc(50% - 5px); 
+  object-fit: cover;
+}

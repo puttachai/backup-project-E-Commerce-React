@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .hoverEffect {
+    @apply duration-300 cursor-pointer;
+  }
+  .headerSedenavLi {
+    @apply hover:underline underline-offset-2 cursor-pointer text-gray-300 hover:text-white;
+  }
+}
+
+/* @layer base {
+  ul, ol {
+    padding-left: 0; /* กำหนดค่า padding-left เป็น 0 
+  }
+} */
+@layer base {
+  body {
+    /* margin: revert-layer; กำหนดค่า padding-left เป็น 0 */
+    contain: layout;
+  }
+}
+
+/* ============= NavLink active Start here ============== */
+nav .active li {
+  color: black;
+  font-weight: 600;
+  text-decoration: 1px underline black;
+}
+
+@media screen and (max-width: 665px) {
+  nav .active li {
+    color: white;
+    font-weight: 600;
+    text-decoration: 1px underline white;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+/* ============= NavLink active End here ================ */
+
+/* #custom-toast-container {
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  /* padding: 16px; 
+  transform: translateY(0px); /* เพิ่มเพื่อรองรับ JavaScript 
+  transition: transform 0.3s ease; /* เพิ่มเอฟเฟกต์การเลื่อน 
+} */
+
+/* .toast-position {
+  /* top: 8rem !important; 
+  position: absolute !important;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+} */
+
+.toast-position {
+  position: absolute !important;
+}
+
+
+.imagescroll {
+  will-change: transform;
+  transition: transform 0.2s ease-out; /* เพิ่ม transition เพื่อให้สมูท */
+}
