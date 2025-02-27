@@ -25,7 +25,10 @@ const Home = () => {
         <BestSellers />
         <YearProduct />
         <SpecialOffers />
-        <SpecialCase />
+        {/* <SpecialCase /> */}
+        <div className="relative overflow-y-auto">
+          <SpecialCase />
+        </div>
       </div>
       {/* <SpecialCase /> */}
     </div>

@@ -1,135 +1,173 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from 'react-router-dom'; //useLocation
-//import { QRCodeCanvas } from "qrcode.react";
-import qrcode from 'qrcode';
-// import promptpay from 'promptpay-qr';
-import generatePayload from 'promptpay-qr'
-import PropTypes from "prop-types";  // Import PropTypes for validation
-import axios from 'axios';
-import { toast } from 'react-toastify';
+import { useNavigate, useLocation, useParams } from "react-router-dom"; //useLocation
+import PropTypes from "prop-types"; // Import PropTypes for validation
+import axios from "axios";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
+// import jsQR from "jsqr";
 
+const PaymentInformation = ({ selectedPaymentMethod }) => {
+  //totalSummary
 
-const PaymentInformation = ({ selectedPaymentMethod }) => { //totalSummary
-
-  const navigate = useNavigate();  // ใช้ useNavigate hook
+  const navigate = useNavigate(); // ใช้ useNavigate hook
   const location = useLocation();
 
   const [orderStatus, setOrderStatus] = useState(null); // ใช้เก็บสถานะของคำสั่งซื้อ
-  console.log("orderStatus: ",orderStatus);
+  console.log("orderStatus: ", orderStatus);
+  console.log("Swal: ", Swal);
+  console.log("orderStatus: ", orderStatus);
 
   const [countdown, setCountdown] = useState(86400); // ตั้งเวลาเริ่มต้น 24 ชั่วโมง (ในวินาที)
   const [currentDate, setCurrentDate] = useState(new Date()); // Store current date and time
-  const { referenceNumber } = useParams();  // ดึง referenceNumber จาก URL path
+  const { referenceNumber } = useParams(); // ดึง referenceNumber จาก URL path
   // const [referenceNumber, setReferenceNumber] = useState(""); // Store the reference number
-  
-  const [qrCodeUrl, setQrCodeUrl] = useState('');
+
   const BASE_URL = process.env.REACT_APP_BASE_URL;
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSlip, setSelectedSlip] = useState(null);
+  const [imagePosition, setImagePosition] = useState(0);
+
   const [isPaid, setIsPaid] = useState(false);
+  console.log("setIsPaid: ", setIsPaid);
   // const [cancelledOrder, setCancelledOrder] = useState(false); // เพิ่ม state สำหรับตรวจสอบการยกเลิกคำสั่งซื้อ
   const [isCancelling, setIsCancelling] = useState(false);
   //const promptpay = generatePayload();
 
   // ดึงข้อมูลจาก localStorages
-  const totalSummarys = localStorage.getItem('totalSummarys');
+  const totalSummarys = localStorage.getItem("totalSummarys");
   // const userId = localStorage.getItem('user_id');
-  const allIds = localStorage.getItem('allIds');
-  const orderId = localStorage.getItem('orderId');
+  const allIds = localStorage.getItem("allIds");
+  const orderId = localStorage.getItem("orderId");
   //const totalSummarys = (localStorage.getItem('totalSummary')) || [];
   console.log("Selected items from localStorage:", totalSummarys);
   console.log("Selected items from localStorage allIds:", allIds);
   console.log("Selected items from localStorage orderId:", orderId);
 
-  const [transactionID, setTransactionID] = useState(''); // เก็บ Transaction ID สำหรับ Webhook
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
+  const [transactionID, setTransactionID] = useState(""); // เก็บ Transaction ID สำหรับ Webhook
+  const [finalAmount, setFinalAmount] = useState(""); // เก็บ Transaction ID สำหรับ Webhook
+
+  const qrCodeUrls = localStorage.getItem("qrCodeUrl");
+  const transactionIDs = localStorage.getItem("transactionID");
+
+  console.log("qrCodeUrls localStorage:", qrCodeUrls);
+  console.log("transactionIDs localStorage:", transactionIDs);
 
   useEffect(() => {
     const fetchTransactionData = async () => {
       try {
-
-        const totalSummarys = parseFloat(localStorage.getItem("totalSummarys"));
-          const promptPayID = '0952517869';
-  
-          const qrData = generatePayload(promptPayID, { amount: totalSummarys });
-           
-  
-          qrcode.toDataURL(qrData, async (err, url) => {
-
-            if (!err) {
-              setQrCodeUrl(url);
-              const newTransaction = await axios.post(`${BASE_URL}/api/insert-qrCodeUrl`, { 
-                // promptPayID, 
-                // amount: totalSummarys, 
-                referenceNumber, 
-                qrCodeUrl: url, // ตรวจสอบให้แน่ใจว่าส่งไป
-                headers: {
-                  'Cache-Control': 'no-cache',
-                  //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-                }
-              });
-              console.log("newTransaction: ", newTransaction);
-              setTransactionID(newTransaction.data.transactionID);
-              // setQrCodeUrl(response.data.qrCodeUrl); // ใช้ QR Code เดิม
-            } else {
-              console.error("QR Code generation error:", err);
-            }
-          });
-
-          console.log("transaction referenceNumber: ", referenceNumber);
-
-        const response = await axios.get(`${BASE_URL}/api/transaction/${referenceNumber}`,{ //referenceNumber ${transactionID} ${referenceNumber}
-          // params: { referenceNumber }, 
-          // referenceNumber,
-          // params:{
-          //   transactionID
-          // },
-          headers: {
-            'Cache-Control': 'no-cache',
-            //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        const response = await axios.get(
+          `${BASE_URL}/api/transaction/${referenceNumber}`,
+          {
+            headers: {
+              "Cache-Control": "no-cache",
+            },
           }
-        });
-        console.log("response transaction: ",response);
+        );
+        console.log("response transaction: ", response);
 
-        if (response.data.referenceNumber) { //referenceNumber
-          setTransactionID(response.data.transactionID);  // ใช้ transactionID เดิม referenceNumber
-        // if (response.data.transactionID) {
-        //   setTransactionID(response.data.transactionID);  // ใช้ transactionID เดิม 
-          setQrCodeUrl(response.data.qrCodeUrl); // ใช้ QR Code เดิม
+        if (response.data.referenceNumber) {
+          //referenceNumber
+          setTransactionID(response.data.transactionID); // ใช้ transactionID เดิม referenceNumber
+          setFinalAmount(response.data.finalAmount);
+          setQrCodeUrl(response.data.qrCodeUrl); // ใช้ QR Code จาก API
+          console.log("ใช้ QR Code จาก Database:", response.data.qrCodeUrl);
+          console.log("response.Data.finalAmount:", response.data.finalAmount);
+          console.log(
+            "response.data.qrCodeUrl.length:",
+            response.data.qrCodeUrl.length
+          );
+
+          console.log(
+            "response.data.referenceNumber: ",
+            response.data.referenceNumber
+          );
         } else {
           // ถ้าไม่มี transactionID เดิม ให้สร้างใหม่
-          const totalSummarys = parseFloat(localStorage.getItem("totalSummarys"));
-          const promptPayID = '0952517869';
-  
-           const qrData = generatePayload(promptPayID, { amount: totalSummarys });
-  
-          qrcode.toDataURL(qrData, async (err, url) => {
-
-            if (!err) {
-              setQrCodeUrl(url);
-              const newTransaction = await axios.post(`${BASE_URL}/api/webhook`, { 
-                promptPayID, 
-                amount: totalSummarys, 
-                referenceNumber, 
-                qrCodeUrl: url // ตรวจสอบให้แน่ใจว่าส่งไป
-              });
-              console.log("newTransaction: ", newTransaction);
-              setTransactionID(newTransaction.data.transactionID);
-              setQrCodeUrl(response.data.qrCodeUrl); // ใช้ QR Code เดิม
-            } else {
-              console.error("QR Code generation error:", err);
-            }
-          });
+          // console.error("QR Code generation error:", err);
+          console.error("Error: referenceNumber is missing or invalid.");
         }
       } catch (error) {
-        console.error('Error fetching transaction data:', error);
+        console.error("Error fetching transaction data:", error);
       }
     };
-  
+
     fetchTransactionData();
   }, [BASE_URL, referenceNumber]);
 
+  // useEffect(() => {
+  //   console.log("🔌 Connecting to WebSocket...");
+  //   console.log("Reference Number from URL in Connecting:", referenceNumber);
+
+  //   const ws = new WebSocket("ws://localhost:5001");
+
+  //   ws.onopen = () => {
+  //     console.log("Reference Number from URL in onopen:", referenceNumber);
+
+  //     console.log("✅ WebSocket connected");
+
+  //   };
+
+  //   ws.onsmessage = (event) => {
+  //     console.log("📢 WebSocket message received:", event.data);
+
+  //     try {
+  //       const data = JSON.parse(event.data);
+  //       console.log("🛠️ Data from WebSocket:", data);
+  //       console.log("Received status:", data.status);
+
+  //       if (data.referenceNumber === referenceNumber && data.status === "paid") {
+  //         setIsPaid(true);
+  //         Swal.fire({
+  //           title: "🎉 การชำระเงินสำเร็จ!",
+  //           text: "คุณได้ทำการชำระเงินเรียบร้อยแล้ว",
+  //           icon: "success",
+  //           confirmButtonText: "ตกลง"
+  //         }).then(() => {
+  //           navigate("/order-summary");
+  //         });
+  //       }
+  //     } catch (error) {
+  //       console.error("❌ Error parsing WebSocket message:", error);
+  //     }
+  //   };
+
+  // })
+
+  // // ระบบการตรวจสอบการชำระเงิน สำเร็จ
+  // useEffect(() => {
+  //   const ws = new WebSocket("ws://localhost:5001");
+
+  //   ws.onopen = () => console.log("WebSocket connected");
+  //   ws.onerror = (error) => console.error("WebSocket error:", error);
+  //   ws.onmessage = (event) => {
+  //     console.log("WebSocket message received:", event.data);
+  //     const data = JSON.parse(event.data);
+  //     if (data.referenceNumber === referenceNumber && data.status === "paid") {
+  //       setIsPaid(true);
+
+  //       // ✅ ใช้ SweetAlert2 แทน toast.success()
+  //       Swal.fire({
+  //         title: "🎉 การชำระเงินสำเร็จ!",
+  //         text: "คุณได้ทำการชำระเงินเรียบร้อยแล้ว",
+  //         icon: "success",
+  //         confirmButtonText: "ตกลง"
+  //       }).then(() => {
+  //         navigate("/order-summary"); // เปลี่ยนเส้นทางไปหน้าอื่นถ้าต้องการ
+  //       });
+  //     }
+  //   };
+
+  //   return () => {
+  //     ws.close();
+  //     console.log("WebSocket disconnected");
+  //   };
+  // }, [referenceNumber, navigate]);
+
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:5001");
-  
+
     ws.onopen = () => console.log("WebSocket connected");
     ws.onerror = (error) => console.error("WebSocket error:", error);
     ws.onmessage = (event) => {
@@ -140,23 +178,19 @@ const PaymentInformation = ({ selectedPaymentMethod }) => { //totalSummary
         toast.success("🎉 Payment successful!");
       }
     };
-  
+
     return () => {
       ws.close();
       console.log("WebSocket disconnected");
     };
   }, []);
-  
-  
 
-  // Generate a unique reference number (for example, based on the current timestamp)
-  // useEffect(() => {
-  //   const generateReferenceNumber = () => {
-  //     const timestamp = new Date().getTime(); // Get current timestamp in milliseconds
-  //     return `GEK${timestamp.toString(36).toUpperCase()}`; // Generate reference based on timestamp
-  //   };
-  //   setReferenceNumber(generateReferenceNumber());
-  // }, []);
+  useEffect(() => {
+    console.log("Updated QR Code URL:", qrCodeUrl);
+    console.log("Updated QR Code Length?:", qrCodeUrl?.length);
+    console.log("Updated QR Code Length:", qrCodeUrl.length);
+    // console.log("Updated QR Code Length:",response.data.qrCodeUrl.length);
+  }, [qrCodeUrl]);
 
   // Update current date and time every minute (or you can adjust as per your requirement)
   useEffect(() => {
@@ -183,7 +217,10 @@ const PaymentInformation = ({ selectedPaymentMethod }) => { //totalSummary
     const hours = Math.floor(time / 3600);
     const minutes = Math.floor((time % 3600) / 60);
     const seconds = time % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(seconds).padStart(2, "0")}`;
   };
 
   useEffect(() => {
@@ -192,37 +229,50 @@ const PaymentInformation = ({ selectedPaymentMethod }) => { //totalSummary
       console.log("Checking order status for:", referenceNumber);
       try {
         console.log("Checking order status for:", referenceNumber);
-        const response = await axios.get(`${BASE_URL}/api/order/status/${referenceNumber}`, {
-          // referenceNumber
-          headers: {
-            'Cache-Control': 'no-cache',
-            //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        const response = await axios.get(
+          `${BASE_URL}/api/order/status/${referenceNumber}`,
+          {
+            // referenceNumber
+            headers: {
+              "Cache-Control": "no-cache",
+              //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+            },
           }
-        }); // API สำหรับเช็คสถานะคำสั่งซื้อ
-        console.log("response status: ",response);
-        if (response.data.status === 'Cancelled') {
+        ); // API สำหรับเช็คสถานะคำสั่งซื้อ
+        console.log("response status: ", response);
+        if (response.data.status === "Cancelled") {
           // ถ้าคำสั่งซื้อถูกยกเลิก ให้แสดง popup และเปลี่ยนหน้าไปที่ /cart
-          alert('คุณได้ดำเนินรายการแล้ว');
-          navigate('/cart');
+          alert("คุณได้ดำเนินรายการแล้ว");
+          navigate("/cart");
+        } else {
+          setOrderStatus(response.data.status); // ถ้าสถานะไม่ใช่ Cancelled ให้บันทึกสถานะ
+        }
+
+        if (response.data.status === "Pendings") {
+          // ถ้าคำสั่งซื้อถูกยกเลิก ให้แสดง popup และเปลี่ยนหน้าไปที่ /cart
+          alert("คุณได้ดำเนินรายการแล้ว");
+          // navigate("/cart");
+          navigate("/profile/purchases");
         } else {
           setOrderStatus(response.data.status); // ถ้าสถานะไม่ใช่ Cancelled ให้บันทึกสถานะ
         }
       } catch (error) {
-        console.error('Error fetching order status:', error);
-        alert('เกิดข้อผิดพลาดในการตรวจสอบสถานะคำสั่งซื้อ');
+        console.error("Error fetching order status:", error);
+        alert("เกิดข้อผิดพลาดในการตรวจสอบสถานะคำสั่งซื้อ");
       }
     };
 
     checkOrderStatus();
   }, [BASE_URL, referenceNumber, navigate]);
 
+  
   const handleCancelOrder = async () => {
     setIsCancelling(true); // Set to true when canceling the order
 
     try {
       const userId = localStorage.getItem("user_id"); // ดึง userId จาก localStorage หรือจาก state
       console.log("userId: ", userId);
-      
+
       const allIds = JSON.parse(localStorage.getItem("allIds")); // แปลง allIds จาก string เป็น array
       console.log("allIds: ", allIds);
       const orderId = JSON.parse(localStorage.getItem("orderId")); // แปลง allIds จาก string เป็น array
@@ -230,110 +280,311 @@ const PaymentInformation = ({ selectedPaymentMethod }) => { //totalSummary
 
       //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
 
-      const response = await axios.delete(`${BASE_URL}/api/order`, { data: { userId, allIds, orderId, referenceNumber} });
+      const response = await axios.post(`${BASE_URL}/api/cancel-order`, {
+        // data: { 
+        userId, allIds, orderId, referenceNumber
+      // },
+      });
 
       console.log("response: ", response);
-  
+
       if (response.status === 200) {
         // setCancelledOrder(true); // ตั้งค่า cancelledOrder เป็น true เมื่อกด Cancel
         alert("Order has been successfully canceled.");
         // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
         //window.location.reload();
-        navigate('/cart');
+        navigate("/cart");
       }
     } catch (error) {
       console.error("Failed to cancel order:", error);
       alert("Failed to cancel the order. Please try again.");
-    }finally {
+    } finally {
       setIsCancelling(false); // รีเซ็ตค่าเมื่อเสร็จสิ้น
     }
-  };  
+  };
 
+  useEffect(() => {
+    let warningToastId = null;
 
-useEffect(() => {
-  let warningToastId = null;
-
-  // ถ้าไม่มีการ cancel และยังไม่จ่าย ให้แสดงเตือน
-  if (!isCancelling && !isPaid) {
-    warningToastId = toast.warn("คุณยังไม่ได้ชำระเงินใช่ไหม?", {
-      position: "top-right",
-      autoClose: 300000, // 5 นาที
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      onClick: () => navigate(`/paymentInfo/${referenceNumber}`),
-    });
-  }
-
-  // Cleanup function เพื่อลบ toast เดิมเมื่อ isCancelling เปลี่ยนเป็น true
-  return () => {
-    if (isCancelling) {
-      toast.dismiss(warningToastId); // ลบ toast.warn ที่แสดงอยู่ก่อนหน้านี้
-      toast.success("ยกเลิกรายการเรียบร้อย", {
+    // ถ้าไม่มีการ cancel และยังไม่จ่าย ให้แสดงเตือน
+    if (!isCancelling && !isPaid) {
+      warningToastId = toast.warn("คุณยังไม่ได้ชำระเงินใช่ไหม?", {
         position: "top-right",
-        autoClose: 5000,
+        autoClose: 300000, // 5 นาที
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
+        onClick: () => navigate(`/paymentInfo/${referenceNumber}`),
       });
+    } //else if(){
+      
+    // }
+
+    // Cleanup function เพื่อลบ toast เดิมเมื่อ isCancelling เปลี่ยนเป็น true
+    return () => {
+      if (isCancelling) {
+        toast.dismiss(warningToastId); // ลบ toast.warn ที่แสดงอยู่ก่อนหน้านี้
+        toast.success("ยกเลิกรายการเรียบร้อย", {
+          position: "top-right",
+          autoClose: 5000,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+        });
+      }
+    };
+  }, [location.pathname, navigate, isPaid, isCancelling, referenceNumber]); // ตรวจจับค่า location, isPaid, isCancelling
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedSlip(file);
     }
   };
-}, [location.pathname, navigate, isPaid, isCancelling, referenceNumber]); // ตรวจจับค่า location, isPaid, isCancelling
 
+  // const handleUpload = () => {
+  //   // Handle the image upload logic here
+  //   console.log("Uploading slip:", selectedSlip);
+  //   setIsModalOpen(false);
+  // };
+
+  const handleUpload = async (event) => {
+    event.preventDefault();
+
+    // try {
+    //   const userId = localStorage.getItem("user_id"); // ดึง userId จาก localStorage หรือจาก state
+    //   console.log("userId: ", userId);
+      
+    //   const allIds = JSON.parse(localStorage.getItem("allIds")); // แปลง allIds จาก string เป็น array
+    //   console.log("allIds: ", allIds);
+
+    //   //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
+
+    //   const response = await axios.post(`${BASE_URL}/api/order`, { data: { userId, allIds } });
+
+    //   console.log("response: ", response);
+
+      try {
+        const userId = localStorage.getItem("user_id"); // ดึง userId จาก localStorage หรือจาก state
+        console.log("userId: ", userId);
+  
+        const allIds = JSON.parse(localStorage.getItem("allIds")); // แปลง allIds จาก string เป็น array
+        console.log("allIds: ", allIds);
+        const orderId = JSON.parse(localStorage.getItem("orderId")); // แปลง allIds จาก string เป็น array
+        console.log("orderId: ", orderId);
+  
+        //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
+  
+        const response = await axios.post(`${BASE_URL}/api/order-uploadslip`, {
+          data: { userId, allIds, orderId, referenceNumber },
+        });
+  
+        console.log("response: ", response);
+  
+        if (response.status === 200) {
+          // setCancelledOrder(true); // ตั้งค่า cancelledOrder เป็น true เมื่อกด Cancel
+          alert("Order has been successfully Minus qty.");
+          // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
+          //window.location.reload();
+          // navigate("/cart");
+        }
+      } catch (error) {
+        console.error("Failed to cancel order:", error);
+        alert("Failed to cancel the order. Please try again.");
+      } finally {
+        setIsCancelling(false); // รีเซ็ตค่าเมื่อเสร็จสิ้น
+      }
+  
+      //if (response.status === 200) {
+        //alert("Order has been successfully canceled.");
+        // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
+        //window.location.reload();
+        // navigate('/cart');
+      //}
+    // } catch (error) {
+    //   console.error("Failed to cancel order:", error);
+    //   alert("Failed to cancel the order. Please try again.");
+    // }
+  
+    // Show SweetAlert confirmation that the process has started
+    Swal.fire({
+      title: 'กำลังดำเนินการตรวจสอบ',
+      text: 'กรุณารอสักครู่ ขณะนี้กำลังบันทึกรูปภาพ...',
+      icon: 'info',
+      allowOutsideClick: false,  // Prevent closing until the action is complete
+      showConfirmButton: false,  // No confirm button
+      didOpen: () => {
+        Swal.showLoading();
+        // ดีเลย์ 5 วินาที (5000 มิลลิวินาที)
+        setTimeout(() => {
+          Swal.fire({
+            title: 'สำเร็จ!',
+            text: 'บันทึกรูปภาพเรียบร้อยแล้ว',
+            icon: 'success',
+            confirmButtonText: 'ตกลง'
+          });
+        }, 5000);
+      }
+    });
+
+    const userId = localStorage.getItem("user_id");
+    console.log("userId: ", userId);
+    const orderId = localStorage.getItem("orderId");
+    console.log("orderId: ", orderId);
+  
+    const formData = new FormData();
+    formData.append('image', selectedSlip); // Add the selected file to the form data
+    formData.append('userId', userId); // Add the selected file to the form data
+    formData.append('orderId', orderId); // Add the selected file to the form data
+
+    console.log("formData handleUpload: ", formData);
+
+    // ถ้ามีไฟล์ให้แนบ
+    // const fileInput = document.querySelector('input[type="file"]');
+    // if (fileInput && fileInput.files[0]) {
+    //   formData.append("image_profile", fileInput.files[0]);
+    // }
+
+  
+    try {
+      // Send the image to the server for processing
+      const response = await axios.post(`${BASE_URL}/api/order/uploadImagess`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      console.log("response uploadImagess: ",response);
+  
+      if (response.status === 200) {
+        // Successfully uploaded the image, process the order here
+        Swal.fire({
+          title: 'อัปโหลดรูปภาพสำเร็จ!',
+          text: 'โปรดรอการตรวจสอบทางเราสักครู่',
+          icon: 'success',
+          showConfirmButton: true,
+
+          didOpen: () => {
+            Swal.showLoading();
+        
+            // หน่วงเวลา 5 วินาที (5000 มิลลิวินาที)
+            setTimeout(() => {
+              Swal.fire({
+                title: 'อัปโหลดรูปภาพสำเร็จ!',
+                text: 'โปรดรอการตรวจสอบทางเราสักครู่',
+                icon: 'success',
+                showConfirmButton: true
+              });
+            }, 5000);
+          }
+        });
+
+        console.log("response success: ",response);
+
+        navigate("/profile/purchases"); // เปลี่ยนเส้นทางไปหน้าอื่นถ้าต้องการ
+        
+      }
+    } catch (error) {
+      // If there's an error, show an error message
+      Swal.fire({
+        title: 'เกิดข้อผิดพลาด!',
+        text: 'ไม่สามารถบันทึกรูปภาพได้ กรุณาลองใหม่อีกครั้ง',
+        icon: 'error',
+        showConfirmButton: true
+      });
+      console.error('Image upload error:', error);
+    }
+  };
+  
+  
+
+  // const verifyPayment = async (qrData, orderReference) => {
+  //   try {
+  //     const response = await axios.post(`${BASE_URL}/api/verify-payment`, {
+  //       qrData,
+  //       referenceNumber: orderReference,
+  //     });
+  
+  //     if (response.data.success) {
+  //       toast.success("🎉 Payment verified successfully!");
+  //       setIsPaid(true);
+  //     } else {
+  //       toast.error("❌ Payment verification failed!");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error verifying payment:", error);
+  //     toast.error("เกิดข้อผิดพลาดในการตรวจสอบการชำระเงิน");
+  //   }
+  // };
+  
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setImagePosition(window.scrollY); // ปรับค่าตำแหน่งตามการ scroll
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md mt-10 mb-10">
-      <h2 className="text-xl font-semibold text-gray-800">Payment Information</h2>
+      <h2 className="text-xl font-semibold text-gray-800">
+        Payment Information
+      </h2>
 
       <div className="mt-4">
-
         <div className="flex justify-between items-center">
           <p className="text-gray-600">Payment Method</p>
-          <p className="text-gray-800 font-bold">{selectedPaymentMethod}</p> {/* เพิ่มส่วนนี้ */}
+          <p className="text-gray-800 font-bold">{selectedPaymentMethod}</p>
         </div>
 
         <div className="flex justify-between items-center">
-          <p className="text-gray-600">Total Payment</p>
-          {/* <p className="text-red-500 text-lg font-bold">฿{(totalSummarys)}</p> */}
-          ฿{(parseFloat(totalSummarys) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          <p className="text-gray-600">Total Payment</p>฿
+          {(parseFloat(finalAmount) || 0)
+            .toFixed(2)
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
         </div>
 
         <div className="flex justify-between items-center mt-2">
           <p className="text-gray-600">Payment Within</p>
           <p className="text-red-500 text-lg font-bold">
-            {formatTime(countdown)} <span className="text-sm text-gray-500">Due on {formatDueDate(currentDate)}</span>
+            {formatTime(countdown)}{" "}
+            <span className="text-sm text-gray-500">
+              Due on {formatDueDate(currentDate)}
+            </span>
           </p>
         </div>
 
         <div className="mt-6 text-center">
-          <div className="bg-blue-500 text-white py-2 px-4 rounded-t-lg">THAI QR PAYMENT</div>
+          <div className="bg-blue-500 text-white py-2 px-4 rounded-t-lg">
+            THAI QR PAYMENT
+          </div>
           <div className="border p-4 flex justify-center">
-          {qrCodeUrl ? (
-            <div>
-              <img className="justify-self-center" src={qrCodeUrl} alt="PromptPay QR Code" />
-              {transactionID && <p>Transaction ID: {transactionID}</p>}
-            </div>
-            
-          ) : (
-            <p>Loading QR Code...</p>
-          )}
+            {qrCodeUrl || qrCodeUrls ? (
+              <div>
+                <img
+                  className="justify-self-center"
+                  src={qrCodeUrl || qrCodeUrls}
+                  alt="PromptPay QR Code"
+                />
+                {transactionID && <p>Transaction ID: {transactionID}</p>}
+              </div>
+            ) : (
+              <p>Loading QR Code...</p>
+            )}
           </div>
         </div>
-        {/* <div className="mt-6 text-center">
-          <div className="bg-blue-500 text-white py-2 px-4 rounded-t-lg">THAI QR PAYMENT</div>
-          <div className="border p-4 flex justify-center">
-            <QRCodeCanvas value="https://example-payment-link.com" size={180} />
-          </div>
-        </div> */}
 
         <div className="mt-6 text-center">
-          {/* <p className="text-gray-800 font-semibold">฿{totalSummarys}</p> */}
-          ฿{(parseFloat(totalSummarys) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          ฿
+          {(parseFloat(finalAmount) || 0)
+            .toFixed(2)
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           <p className="text-gray-600">บริษัท เก็กโคเพย์ (ประเทศไทย) จำกัด</p>
           <p className="text-gray-600">GEKKOPAY (THAILAND) CO., LTD</p>
-          {/* Display the generated reference number */}
           <p className="text-gray-600">Reference no. {referenceNumber}</p>
-          {/* <p className="text-gray-600">Reference no. GEK7PGQDDW54</p> */}
         </div>
 
         <div className="mt-6 text-center">
@@ -346,6 +597,89 @@ useEffect(() => {
           </button>
         </div>
 
+        {/* Upload Slip Section */}
+        <div className="mt-4 text-center">
+          <button
+            className="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+            onClick={() => setIsModalOpen(true)}
+          >
+            <i className="fas fa-upload"></i> Upload Slip
+          </button>
+        </div>
+
+        {/* Popup Modal for Uploading Slip */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+            <div>
+              {/* <h3 className="text-xl text-gray-600/100 dark:text-gray-400/100 font-semibold mb-4">Upload Payment Slip</h3> */}
+              <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div
+                  className="imagescroll relative bg-gray-100 text-white p-6 rounded-2xl shadow-lg w-96 relative"
+                  style={{
+                    transform: `translateY(${imagePosition}px)`,
+                    marginBottom: "650px",
+                  }}
+                >
+                  <h3 className="text-lg text-gray-600/100 dark:text-gray-400/100 font-semibold text-center mb-4">
+                    อัปโหลดสลิป
+                  </h3>
+                  <label className="border-2 border-dashed border-gray-500 p-6 flex flex-col items-center justify-center rounded-lg cursor-pointer hover:border-blue-500 transition">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <div className="text-center">
+                      <svg
+                        className="w-12 h-12 mx-auto text-gray-400"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M12 16V4m0 0L8 8m4-4l4 4m-6 4h8a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2v-4a2 2 0 012-2h2"
+                        />
+                      </svg>
+                      <p className="text-sm  text-gray-600/100 dark:text-gray-400/100 mt-2">
+                        ลากไฟล์ของคุณที่นี่ หรือคลิกเลือก
+                      </p>
+                    </div>
+                  </label>
+
+                  {selectedSlip && (
+                    <p className="text-sm text-gray-400 mt-2 text-center">
+                      ไฟล์ที่เลือก: {selectedSlip.name}
+                    </p>
+                  )}
+
+                  <div className="flex justify-between mt-6">
+                    <button
+                      className={`px-4 py-2 rounded-lg w-1/2 ${
+                        selectedSlip
+                          ? "bg-blue-600 hover:bg-blue-700"
+                          : "bg-gray-600 cursor-not-allowed"
+                      }`}
+                      onClick={handleUpload}
+                      disabled={!selectedSlip}
+                    >
+                      ยืนยัน
+                    </button>
+                    <button
+                      className="bg-gray-700 px-4 py-2 rounded-lg w-1/2 ml-2"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      ยกเลิก
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -353,236 +687,153 @@ useEffect(() => {
 
 // Add PropTypes validation for the props
 PaymentInformation.propTypes = {
-    selectedPaymentMethod: PropTypes.string.isRequired,
-    // totalPrice: PropTypes.number.isRequired
-    totalSummary: PropTypes.shape({
-        totalPrice: PropTypes.number.isRequired
-    }).isRequired
-  };
+  selectedPaymentMethod: PropTypes.string.isRequired,
+  // totalPrice: PropTypes.number.isRequired
+  totalSummary: PropTypes.shape({
+    totalPrice: PropTypes.number.isRequired,
+  }).isRequired,
+};
 
 export default PaymentInformation;
 
 
 
 
- /////// ใช้ได้
-  // useEffect(() => {
-  //   const fetchTransaction = async () => {
-  //     try {
-  //       const response = await axios.get(`${BASE_URL}/api/transaction/${transactionID}`);
-  //       console.log("fetchTransaction response: ",response);
-  //       if (response.data.transactionID) {
-  //         // ถ้ามีข้อมูลอยู่แล้ว ใช้ค่าที่มีอยู่
-  //         setTransactionID(response.data.transactionID);
-  //         setQrCodeUrl(response.data.qrCodeUrl);
-  //         console.log("ใช้ Transaction ID เดิม:", response.data.transactionID);
-  //       } else {
-  //         // ถ้าไม่มี ให้สร้างใหม่
-  //         generateNewQRCode();
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching transaction data:", error);
-  //       generateNewQRCode(); // fallback กรณี API มีปัญหา
-  //     }
-  //   };
-  
-  //   const generateNewQRCode = async () => {
-  //     const totalSummarys = parseFloat(localStorage.getItem("totalSummarys"));
-  //     const promptPayID = "0952517869";
-  
-  //     try {
-  //       // 🔹 สร้าง QR Code PromptPay
-  //       const qrData = generatePayload(promptPayID, { amount: totalSummarys });
-  
-  //       qrcode.toDataURL(qrData, async (err, url) => {
-  //         if (!err) {
-  //           setQrCodeUrl(url);
-  
-  //           // 🔹 ส่งข้อมูลไปบันทึกที่ backend
-  //           const newTransaction = await axios.post(`${BASE_URL}/api/webhook`, {
-  //             promptPayID,
-  //             amount: totalSummarys,
-  //             referenceNumber,
-  //             qrCodeUrl: url, // 🔹 เพิ่มการส่ง URL QR Code ไปเก็บ
-  //           });
-  
-  //           setTransactionID(newTransaction.data.transactionID);
-  //           console.log("สร้าง Transaction ID ใหม่:", newTransaction.data.transactionID);
-  //         } else {
-  //           console.error("Error generating QR code:", err);
+
+
+// const handleUpload = async (event) => {
+//   event.preventDefault();
+
+//   if (!selectedSlip) {
+//     Swal.fire("กรุณาเลือกไฟล์!", "คุณต้องแนบ QR Code ก่อนกดอัปโหลด", "warning");
+//     return;
+//   }
+
+  // const reader = new FileReader();
+  // reader.readAsArrayBuffer(selectedSlip);
+  // reader.onload = async () => {
+  //   const image = new Image();
+  //   image.src = URL.createObjectURL(selectedSlip);
+
+  //   image.onload = async () => {
+  //     const canvas = document.createElement("canvas");
+  //     const ctx = canvas.getContext("2d");
+  //     canvas.width = image.width;
+  //     canvas.height = image.height;
+  //     ctx.drawImage(image, 0, 0, image.width, image.height);
+
+  //     const qrImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  //     console.log("QR Image Data:", qrImageData);
+
+  //     const qrCodeResult = jsQR(qrImageData.data, canvas.width, canvas.height);
+  //     console.log("QR Image Data:", qrCodeResult);
+
+  //     if (qrCodeResult) {
+  //       console.log("QR Code detected:", qrCodeResult.data);
+
+  //       try {
+
+  //         const qrData = JSON.parse(qrCodeResult.data);
+  //         console.log("Decoded QR Data:", qrData);
+
+  //         // ตรวจสอบราคาตรงกันไหม
+  //         if (qrData.amount !== parseFloat(finalAmount)) {
+  //           Swal.fire("❌ ราคาผิดพลาด!", "QR Code ที่แนบมาไม่ตรงกับราคาของคุณ", "error");
+  //           return;
   //         }
-  //       });
-  //     } catch (error) {
-  //       console.error("Error creating transaction:", error);
+
+  //         // ตรวจสอบวันเวลา
+  //         const qrDate = new Date(qrData.timestamp);
+  //         const currentTime = new Date();
+  //         const timeDiff = Math.abs(currentTime - qrDate) / 1000; // คำนวณเวลาห่างเป็นวินาที
+
+  //         if (timeDiff > 86400) {
+  //           Swal.fire("⏳ QR Code หมดอายุ!", "QR Code ที่แนบมาหมดอายุแล้ว", "warning");
+  //           return;
+  //         }
+
+  //         // ถ้าข้อมูลถูกต้อง
+  //         Swal.fire("✅ การชำระเงินสำเร็จ!", "QR Code ถูกต้อง ระบบจะบันทึกการชำระเงิน", "success");
+
+  //         // ส่งข้อมูลไปยังเซิร์ฟเวอร์เพื่ออัปเดตสถานะ
+  //         await axios.post(`${BASE_URL}/api/confirm-payment`, { referenceNumber });
+
+  //         setIsPaid(true);
+  //         navigate("/order-summary");
+  //       } catch (error) {
+  //         Swal.fire("❌ QR Code ไม่ถูกต้อง!", "ไม่สามารถอ่าน QR Code นี้ได้", "error");
+  //       }
+  //     } else {
+  //       Swal.fire("❌ ไม่พบ QR Code!", "กรุณาอัปโหลดภาพที่มี QR Code ที่ถูกต้อง", "error");
   //     }
   //   };
-  
-  //   fetchTransaction();
-  // }, [BASE_URL, transactionID, referenceNumber]);
-  
-  
-
-  // useEffect(() => {
-  //   // const totalSummarys = localStorage.getItem('totalSummarys');
-  //   const totalSummarys = parseFloat(localStorage.getItem("totalSummarys")); // แปลงค่าเป็น float
-  //   const promptPayID = '0952517869'; // หมายเลขพร้อมเพย์
-  //   // const amount = totalSummarys; // จำนวนเงิaน
-
-  //   // สร้างข้อมูล PromptPay QR Code
-  //   const qrData = generatePayload(promptPayID, { amount: totalSummarys });
-  //   console.log("qrData: ",qrData);
-
-  //   // สร้าง QR Code URL
-  //   qrcode.toDataURL(qrData, (err, url) => {
-  //     if (!err) {
-  //       setQrCodeUrl(url);
-  //       // แจ้ง backend เพื่อสร้าง Transaction ID
-  //       axios.post(`${BASE_URL}/api/webhook`, { promptPayID, amount: totalSummarys, referenceNumber })
-  //         .then(response => {
-  //           setTransactionID(response.data.transactionID);
-  //           console.log('response.data.transactionID: ', response.data.transactionID);
-  //         })
-  //         .catch(error => {
-  //           console.error('Error creating transaction:', error);
-  //         });
-  //     }
-  //   });
-  // }, [BASE_URL, referenceNumber]);
-
-
-  // useEffect(() => {
-  //   const ws = new WebSocket("ws://localhost:5000"); // เปลี่ยนเป็น URL ของ Backend จริง
-
-  //   ws.onmessage = (event) => {
-  //     const data = JSON.parse(event.data);
-  //     if (data.status === "paid") {
-  //       setIsPaid(true);
-  //       toast.success("🎉 Payment successful!");
-  //     }
-  //   };
-
-  //   return () => ws.close();
-  // }, []);
+  // };
+// };
 
 
 
+// return (
+//   <div className="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md mt-10 mb-10">
+//     <h2 className="text-xl font-semibold text-gray-800">Payment Information</h2>
 
-    // ดึงค่า transactionID จาก Local Storage
-    // const savedTransactionID = localStorage.getItem("transactionID");
+//     <div className="mt-4">
 
-    // if (savedTransactionID) {
-    //   setTransactionID(savedTransactionID); // ใช้ค่าเดิมที่มีอยู่
-    //   console.log("ใช้ transactionID เดิม:", savedTransactionID);
-    // } else {
-    //   // ถ้าไม่มี transactionID ให้สร้างใหม่
-    //   const qrData = generatePayload(promptPayID, { amount: totalSummarys });
-  
-    //   qrcode.toDataURL(qrData, (err, url) => { 
-    //     if (!err) {
-    //       setQrCodeUrl(url);
+//       <div className="flex justify-between items-center">
+//         <p className="text-gray-600">Payment Method</p>
+//         <p className="text-gray-800 font-bold">{selectedPaymentMethod}</p> {/* เพิ่มส่วนนี้ */}
+//       </div>
 
-    //       axios.post(`${BASE_URL}/api/webhook`, { promptPayID, amount: totalSummarys })
-    //         .then(response => {
-    //           console.log("Webhook response:", response.data); // ตรวจสอบค่าที่ API ส่งกลับ
-    //           const newTransactionID = response.data.transactionID;
-    //           if (newTransactionID) {
-    //             setTransactionID(newTransactionID);
-    //             localStorage.setItem("transactionID", newTransactionID);
-    //             console.log("สร้าง transactionID ใหม่:", newTransactionID);
-    //           } else {
-    //             console.error("Transaction ID ไม่ถูกต้อง:", response.data);
-    //           }
-    //         })
-    //         .catch(error => {
-    //           console.error('Error creating transaction:', error);
-    //         });
-          
-    //       // แจ้ง backend เพื่อสร้าง Transaction ID
-    //       // axios.post(`${BASE_URL}/api/webhook`, { promptPayID, amount: totalSummarys })
-    //       //   .then(response => {
-    //       //     const newTransactionID = response.data.transactionID;
-    //       //     setTransactionID(newTransactionID);
-    //       //     localStorage.setItem("transactionID", newTransactionID); // บันทึกค่าไว้
-    //       //     console.log("สร้าง transactionID ใหม่:", newTransactionID);
-    //       //   })
-    //       //   .catch(error => {
-    //       //     console.error('Error creating transaction:', error);
-    //       //   });
-    //     }
-    //   });
-    // }
+//       <div className="flex justify-between items-center">
+//         <p className="text-gray-600">Total Payment</p>
+//         {/* <p className="text-red-500 text-lg font-bold">฿{(totalSummarys)}</p> */}
+//         ฿{(parseFloat(finalAmount) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+//         {/* ฿{(parseFloat(totalSummarys) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
+//       </div>
 
+//       <div className="flex justify-between items-center mt-2">
+//         <p className="text-gray-600">Payment Within</p>
+//         <p className="text-red-500 text-lg font-bold">
+//           {formatTime(countdown)} <span className="text-sm text-gray-500">Due on {formatDueDate(currentDate)}</span>
+//         </p>
+//       </div>
 
+//       <div className="mt-6 text-center">
+//         <div className="bg-blue-500 text-white py-2 px-4 rounded-t-lg">THAI QR PAYMENT</div>
+//         <div className="border p-4 flex justify-center">
+//         {qrCodeUrl || qrCodeUrls ? (
+//         // {qrCodeUrl ? (
+//           <div>
+//             <img className="justify-self-center" src={qrCodeUrl || qrCodeUrls} alt="PromptPay QR Code" /> {/* qrCodeUrl */}
+//             {transactionID && <p>Transaction ID: {transactionID || transactionIDs}</p>}
+//           </div>
 
-    //   useEffect(() => {
+//         ) : (
+//           <p>Loading QR Code...</p>
+//         )}
+//         </div>
+//       </div>
 
-//     const handleBeforeUnload = (event) => {
-//       if (!isPaid) {
-//         event.preventDefault();
-//         event.returnValue = "";
-//       }
-//     };
+//       <div className="mt-6 text-center">
+//         {/* <p className="text-gray-800 font-semibold">฿{totalSummarys}</p> */}
+//         ฿{(parseFloat(finalAmount) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+//         {/* ฿{(parseFloat(totalSummarys) || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} */}
+//         <p className="text-gray-600">บริษัท เก็กโคเพย์ (ประเทศไทย) จำกัด</p>
+//         <p className="text-gray-600">GEKKOPAY (THAILAND) CO., LTD</p>
+//         {/* Display the generated reference number */}
+//         <p className="text-gray-600">Reference no. {referenceNumber}</p>
+//         {/* <p className="text-gray-600">Reference no. GEK7PGQDDW54</p> */}
+//       </div>
 
-//   const handlePopState = () => {
-//     console.log("🔄 Back button pressed!");
+//       <div className="mt-6 text-center">
+//         {/* Cancel Order Button */}
+//         <button
+//           className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-700"
+//           onClick={handleCancelOrder}
+//         >
+//           Cancel Order
+//         </button>
+//       </div>
 
-//     if (!isPaid) {
-//       toast.warn("Has the payment not been made yet?", {
-//         position: "top-right",
-//         autoClose: 5000,
-//         closeOnClick: true,
-//         pauseOnHover: true,
-//         draggable: true,
-//         onClick: () => navigate("/payment"),
-//       });
-
-//       navigate("/payment");
-//     }
-//   };
-
-//   window.addEventListener("beforeunload", handleBeforeUnload);
-//   window.addEventListener("popstate", handlePopState);
-
-
-//   return () => {
-//     window.removeEventListener("beforeunload", handleBeforeUnload);
-//     window.removeEventListener("popstate", handlePopState);
-    
-//   };
-
-// }, [isPaid, navigate]);
-
-
-
-
- // useEffect(() => {
-  //   const handleBeforeUnload = (event) => {
-  //     if (!isPaid) {
-  //       event.preventDefault();
-  //       event.returnValue = "";
-  //     }
-  //   };
-
-   
-  //   const handleNavigation = (event) => {
-  //     if (!isPaid) {
-  //       event.preventDefault();
-  //       toast.success("Has the payment not been made yet?", {
-  //         position: "top-right",
-  //         autoClose: 5000,
-  //         closeOnClick: true,
-  //         pauseOnHover: true,
-  //         draggable: true,
-  //         onClick: () => navigate("/payment"),
-  //       });
-  //     }
-  //   };
-
-  //   window.addEventListener("beforeunload", handleBeforeUnload);
-  //   window.addEventListener("popstate", handleNavigation);
-
-  //   return () => {
-  //     window.removeEventListener("beforeunload", handleBeforeUnload);
-  //     window.removeEventListener("popstate", handleNavigation);
-  //   };
-  // }, [isPaid, navigate]);
+//     </div>
+//   </div>
+// );

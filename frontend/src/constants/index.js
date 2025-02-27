@@ -88,6 +88,12 @@ export const navBarList = [
     link: "/seller/mdc",
     // link: "/seller",
   },
+  // {
+  //   _id: 1007,
+  //   title: "promptpaycheckout",
+  //   link: "/promptpaycheckout",
+  //   // link: "/seller",
+  // },
 ];
 // =================== NavBarList End here ======================
 // =================== Special Offer data Start here ============

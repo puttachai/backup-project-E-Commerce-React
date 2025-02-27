@@ -7,6 +7,9 @@ import { Link, useNavigate } from "react-router-dom"; // Import Link for routing
 import { motion } from "framer-motion"; // Import motion for animation
 import axios from "axios";
 
+import qrcode from 'qrcode';
+import generatePayload from 'promptpay-qr'
+
 const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 const Payments = () => {
@@ -17,6 +20,9 @@ const Payments = () => {
   // ดึงข้อมูลจาก localStorage
   const selectedItemslocalStorage = JSON.parse(localStorage.getItem('selectedItems')) || [];
   console.log("Selected items from localStorage:", selectedItemslocalStorage);
+
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
+  const [transactionID, setTransactionID] = useState(''); // เก็บ Transaction ID สำหรับ Webhook
 
   // const specificItem = selectedItemslocalStorage.find(item => item.id);
   const allIds = selectedItemslocalStorage.map(item => ({
@@ -153,6 +159,23 @@ const Payments = () => {
   //   }
   // };
 
+  const updateProductStock = async (items) => {
+    console.log("Updating stock for items:", items); // ตรวจสอบค่าก่อนอัปเดต
+    try {
+      const response = await axios.post(`${BASE_URL}/api/update-stock`, {
+        items,
+        headers: {
+          'Cache-Control': 'no-cache',
+          //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+        }   
+      });
+      // console.log("Stock updated successfully:", response.data.updatedStocks);
+      console.log("Stock updated successfully:", response);
+    } catch (error) {
+      console.error("Error updating stock:", error);
+    }
+  };
+  
 
   const handleConfirmAndPay = async() => {
 
@@ -165,10 +188,49 @@ const Payments = () => {
       const timestamp = new Date().getTime(); // เวลาปัจจุบันใน milliseconds
       return `GEK${timestamp.toString(36).toUpperCase()}`; // แปลง timestamp เป็น base36 และ uppercase
     };
-  
+
     const referenceNumber = generateReferenceNumber(); // สร้าง referenceNumber
     console.log("Generated Reference Number:", referenceNumber);
-  
+
+    const generateQrCodeUrl = () => {
+
+      const totalSummarys = parseFloat(localStorage.getItem("totalSummarys"));
+      const promptPayID = '0952517869';
+
+      const qrData = generatePayload(promptPayID, { amount: totalSummarys });
+       
+
+      qrcode.toDataURL(qrData, async (err, url) => {
+
+        if (!err) {
+          setQrCodeUrl(url);
+          const newTransaction = await axios.post(`${BASE_URL}/api/insert-qrCodeUrl`, { 
+            // promptPayID, 
+            // amount: totalSummarys, 
+            referenceNumber, 
+            qrCodeUrl: url, // ตรวจสอบให้แน่ใจว่าส่งไป
+            headers: {
+              'Cache-Control': 'no-cache',
+              //'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+            }
+          });
+          console.log("url: ", url);
+          console.log("newTransaction: ", newTransaction);
+          setTransactionID(newTransaction.data.transactionID);
+
+          localStorage.setItem('qrCodeUrl', qrCodeUrl);
+          localStorage.setItem('transactionID', transactionID);
+
+          // setQrCodeUrl(response.data.qrCodeUrl); // ใช้ QR Code เดิม
+        } else {
+          console.error("QR Code generation error:", err);
+        }
+      });
+
+      console.log("transaction referenceNumber: ", referenceNumber);
+    }
+
+    
     const allIds = selectedItemslocalStorage.map(item => ({
       id: item.id,
       // is_selected: item.is_selected,
@@ -209,9 +271,15 @@ const Payments = () => {
           localStorage.setItem('allIds', JSON.stringify(allIds)); // แปลงและเก็บข้อมูลใน localStorage
           localStorage.setItem('orderId', response.data.orderId);
           //localStorage.setItem('allIds', allIds);
+          console.log("localStorage allIds: ",localStorage.getItem("allIds"));
 
           // console.log("Selected items saved in localStorage:", totalSummary.totalPrice);  
           console.log("Selected items saved in localStorage:", getTotal);  
+
+          generateQrCodeUrl();
+
+          // 📌 เรียก API อัปเดตสต็อกสินค้า
+          updateProductStock(allIds);
 
         if (selectedPaymentMethod === "QR PromptPay") {
           navigate(`/paymentInfo/${referenceNumber}`, { state: { method: "QR PromptPay", totalPrice: totalSummary.totalPrice } }); // ส่งค่า totalPrice ไป
@@ -238,12 +306,13 @@ const Payments = () => {
 
       //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
 
-      const response = await axios.delete(`${BASE_URL}/api/order`, { data: { userId, allIds } });
+      // const response = await axios.post(`${BASE_URL}/api/remove-cart`, { data: { userId, allIds } });
+      const response = await axios.post(`${BASE_URL}/api/remove-cart`, { userId, allIds });
 
       console.log("response: ", response);
   
       if (response.status === 200) {
-        alert("Order has been successfully canceled.");
+        alert("Remove items product in cart successfully!");
         // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
         //window.location.reload();
         // navigate('/cart');

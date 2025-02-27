@@ -1149,6 +1149,7 @@ const HeaderBottom = () => {
           localStorage.removeItem('token');
           //authToken lสำคัญ !!
           localStorage.removeItem('userId'); // ลบ userId
+          localStorage.removeItem('user_id'); // ลบ user_id เพื่อให้แน่ใจว่าไม่เหลือข้อมูลเก่า
           localStorage.removeItem('authToken'); // ลบ authToken
   
           console.log('Logout successful');
@@ -1489,6 +1490,8 @@ console.log("Profileuser: ", Profileuser);
                 {isLoggedIn ? (
                   <>
                     <Link to="/profile/history"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Profile</li></Link>
+                    {/* <Link to="/promptpaycheckout"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Paymentgateway</li></Link> */}
+                    <Link to="/sellerRegister"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">sellerRegister</li></Link>
                     <li onClick={handleLogout} className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Logout</li>
                   </>
                 ) : (

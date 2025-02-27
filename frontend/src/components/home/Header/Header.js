@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios"; // ต้อง import axios
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { MdClose } from "react-icons/md";
 import { HiMenuAlt2 } from "react-icons/hi";
@@ -8,12 +9,18 @@ import Image from "../../designLayouts/Image";
 import { navBarList } from "../../../constants";
 import Flex from "../../designLayouts/Flex";
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const Header = () => {
   const [showMenu, setShowMenu] = useState(true);
   const [sidenav, setSidenav] = useState(false);
   const [category, setCategory] = useState(false);
   const [brand, setBrand] = useState(false);
+  const [isSeller, setIsSeller] = useState(false); // เช็คว่า user เป็น seller หรือไม่
+
   const location = useLocation();
+
+
   useEffect(() => {
     let ResponsiveMenu = () => {
       if (window.innerWidth < 667) {
@@ -26,6 +33,28 @@ const Header = () => {
     window.addEventListener("resize", ResponsiveMenu);
   }, []);
 
+// Fetch ตรวจสอบว่าเป็น Seller หรือไม่
+useEffect(() => {
+  const userId = localStorage.getItem("user_id"); // ดึง token จาก localStorage
+  console.log("userId: ",userId);
+  if (!userId) return;
+
+  // axios.get(`${BASE_URL}/api/check-seller`, {
+  //     userId,
+  //     headers: {'Cache-Control': 'no-cache' }, // ห้ามแคช
+  //   })
+    axios.get(`${BASE_URL}/api/check-seller?userId=${userId}`, {
+      headers: {'Cache-Control': 'no-cache'}
+    })  
+    .then((response) => {
+      setIsSeller(response.data.isSeller);
+    })
+    .catch((error) => {
+      console.error("Error checking seller:", error);
+    });
+}, []);
+
+
   return (
     <div className="w-full h-20 bg-white sticky top-0 z-50 border-b-[1px] border-b-gray-200">
       <nav className="h-full px-4 max-w-container mx-auto relative">
@@ -36,65 +65,36 @@ const Header = () => {
             </div>
           </Link>
           <div>
+
             {
-            
-            <div>
-            {showMenu && (
-              <motion.ul
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center w-auto z-50 p-0 gap-2"
-                style={{ opacity: 0, willChange: "transform, opacity", transform: "translateY(30px)" }}
-              >
-                {navBarList.map(({ _id, title, link }) => (
-                  <li key={_id} className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">
-                    <NavLink to={link} state={{ data: location.pathname.split("/")[1] }}>
-                      {title}
-                    </NavLink>
-                  </li>
-                ))}
-              </motion.ul>
-            )}
-          </div>
-          
-
-            /*}
-            {showMenu && (
-              <motion.ul
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="flex items-center w-auto z-50 p-0 gap-2"
-              >
-                <>
-
-                <ul className="flex">
-                  {navBarList.map(({ _id, title, link }) => (
-                    <li key={_id} className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">
-                      <NavLink
-                        to={link}
-                        state={{ data: location.pathname.split("/")[1] }}
-                      >
+                <div>
+                {showMenu && (
+                  <motion.ul
+                    initial={{ y: 30, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="flex items-center w-auto z-50 p-0 gap-2"
+                    style={{ opacity: 0, willChange: "transform, opacity", transform: "translateY(30px)" }}
+                  >
+                    {navBarList
+                  .filter(({ title }) => title !== "Seller" || isSeller) // แสดง Seller เฉพาะเมื่อ isSeller เป็น true
+                  .map(({ _id, title, link }) => (
+                    <li
+                      key={_id}
+                      className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                    >
+                      <NavLink to={link} state={{ data: location.pathname.split("/")[1] }}>
                         {title}
                       </NavLink>
                     </li>
                   ))}
-                </ul>
 
-                  {/* {navBarList.map(({ _id, title, link }) => (
-                    <NavLink
-                      key={_id}
-                      className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
-                      to={link}
-                      state={{ data: location.pathname.split("/")[1] }}
-                    >
-                      <li>{title}</li>
-                    </NavLink>
-                  ))} 
-                </>
-              </motion.ul>
-            )}*/}
+                  </motion.ul>
+                )}
+              </div>
+
+            }
+
             <HiMenuAlt2
               onClick={() => setSidenav(!sidenav)}
               className="inline-block md:hidden cursor-pointer w-8 h-6 absolute top-6 right-4"
@@ -196,3 +196,52 @@ const Header = () => {
 };
 
 export default Header;
+
+
+// {navBarList.map(({ _id, title, link }) => (
+//   <li key={_id} className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">
+//     <NavLink to={link} state={{ data: location.pathname.split("/")[1] }}>
+//       {title}
+//     </NavLink>
+//   </li>
+// ))}
+
+
+ /*}
+            {showMenu && (
+              <motion.ul
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="flex items-center w-auto z-50 p-0 gap-2"
+              >
+                <>
+
+                <ul className="flex">
+                  {navBarList.map(({ _id, title, link }) => (
+                    <li key={_id} className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0">
+                      <NavLink
+                        to={link}
+                        state={{ data: location.pathname.split("/")[1] }}
+                      >
+                        {title}
+                      </NavLink>
+                    </li>
+                  ))}
+                </ul>
+
+                  {/* {navBarList.map(({ _id, title, link }) => (
+                    <NavLink
+                      key={_id}
+                      className="flex font-normal hover:font-bold w-20 h-6 justify-center items-center px-12 text-base text-[#767676] hover:underline underline-offset-[4px] decoration-[1px] hover:text-[#262626] md:border-r-[2px] border-r-gray-300 hoverEffect last:border-r-0"
+                      to={link}
+                      state={{ data: location.pathname.split("/")[1] }}
+                    >
+                      <li>{title}</li>
+                    </NavLink>
+                  ))} 
+                </>
+              </motion.ul>
+            )}
+            
+            */

@@ -31,6 +31,7 @@ import Payment from "./pages/payment/Paymenttest";
 import PaymentPage from "./pages/payment/payment-page";
 import Payments from "./pages/payment/Payments";
 import PaymentsInfo from "./pages/payment/PaymentInformation";
+import PromptPayCheckout from "./pages/payment/PromptPayCheckout";
 import ProductDetails from "./pages/ProductDetails/ProductDetails";
 import History from "./person/History";
 import BankAndCard from "./person/bankAndcard";
@@ -45,6 +46,7 @@ import Seller from "./pages/Seller/SellerCentreDashboard";
 import Mdc from "./pages/Seller/MainDashboardContent";
 import Pmg from "./pages/Seller/ProductManagement";
 import SellerAddProduct from "./pages/Seller/AddProduct";
+import SellerRegister from "./pages/Seller/registerSellers/RegisterSellers";
 import './index.css'; // หรือไฟล์ CSS ที่มี .Toastify__toast-container
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -133,6 +135,7 @@ const router = createBrowserRouter(
           <Route path="/seller/pmg" element={<Pmg />}></Route>
           <Route path="/seller/addproduct" element={<SellerAddProduct />}></Route>
         </Route>
+        <Route path="/sellerRegister" element={<SellerRegister />}></Route>
         <Route path="/pmg" element={<Pmg />}></Route>
         {/* ==================== Header Navlink End here ===================== */}
         <Route path="/category/:category/:categoryId" element={<Offer />}></Route>
@@ -160,6 +163,7 @@ const router = createBrowserRouter(
         <Route path="/profile/bankandcard" element={<BankAndcard />}></Route> */}
 
         <Route path="/paymentgateway" element={<Payment />}></Route>
+        <Route path="/promptpaycheckout" element={<PromptPayCheckout />}></Route>
         <Route path="/paymentpage" element={<PaymentPage />}></Route>
         <Route path="/payments" element={<Payments />}></Route>
         <Route path="/paymentInfo/:referenceNumber" element={<PaymentsInfo />}></Route>
