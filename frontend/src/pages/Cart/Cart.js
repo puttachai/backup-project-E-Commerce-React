@@ -47,7 +47,7 @@
 //               {products.map((item) => (
 //                 <div key={`${item._id}-${item.id}`}>{/*{item._id} */}
 //                   <ItemCard item={item} />
-//                 </div>
+//                 </div>.
 //               ))}
 //             </div>
 
@@ -621,11 +621,11 @@ const handleProceedToCheckout = () => {
                 <p className="flex items-center justify-between border-[1px] border-gray-400 border-b-0 py-1.5 text-lg px-4 font-medium">
                   Subtotal
                   {/* <span>${totalAmt}</span> */}
-                  <span>${(getSubtotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                  <span>฿{(getSubtotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 </p>
                 <p className="flex items-center justify-between border-[1px] border-gray-400 border-b-0 py-1.5 text-lg px-4 font-medium">
                   VAT (7%)
-                  <span>${((getSubtotal() * 0.07)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span> {/* ${(getSubtotal() * 0.07).toLocaleString()} */}
+                  <span>฿{((getSubtotal() * 0.07)).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span> {/* ${(getSubtotal() * 0.07).toLocaleString()} */}
                 </p>
                 {/* <p className="flex items-center justify-between border-[1px] border-gray-400 border-b-0 py-1.5 text-lg px-4 font-medium">
                   Shipping Charge
@@ -634,7 +634,7 @@ const handleProceedToCheckout = () => {
                 <p className="flex items-center justify-between border-[1px] border-gray-400 py-1.5 text-lg px-4 font-medium">
                   Total
                   {/* <span>${totalAmt + shippingCharge}</span> */}
-                  <span>${(getTotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                  <span>฿{(getTotal()).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 </p>
                 
               </div>

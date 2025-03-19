@@ -29,7 +29,7 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
   const [imagePosition, setImagePosition] = useState(0);
 
   const [isPaid, setIsPaid] = useState(false);
-  console.log("setIsPaid: ", setIsPaid);
+  console.log("isPaid: ", isPaid);
   // const [cancelledOrder, setCancelledOrder] = useState(false); // เพิ่ม state สำหรับตรวจสอบการยกเลิกคำสั่งซื้อ
   const [isCancelling, setIsCancelling] = useState(false);
   //const promptpay = generatePayload();
@@ -188,7 +188,7 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
   useEffect(() => {
     console.log("Updated QR Code URL:", qrCodeUrl);
     console.log("Updated QR Code Length?:", qrCodeUrl?.length);
-    console.log("Updated QR Code Length:", qrCodeUrl.length);
+    // console.log("Updated QR Code Length:", qrCodeUrl.length);
     // console.log("Updated QR Code Length:",response.data.qrCodeUrl.length);
   }, [qrCodeUrl]);
 
@@ -244,6 +244,16 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
           // ถ้าคำสั่งซื้อถูกยกเลิก ให้แสดง popup และเปลี่ยนหน้าไปที่ /cart
           alert("คุณได้ดำเนินรายการแล้ว");
           navigate("/cart");
+        } else {
+          setOrderStatus(response.data.status); // ถ้าสถานะไม่ใช่ Cancelled ให้บันทึกสถานะ
+        }
+
+        if (response.data.status === "Completed") {
+          // ถ้าคำสั่งซื้อถูกยกเลิก ให้แสดง popup และเปลี่ยนหน้าไปที่ /cart
+          
+          alert("คุณได้ดำเนินรายการแล้ว");
+          navigate("/cart");
+          setIsPaid(true);
         } else {
           setOrderStatus(response.data.status); // ถ้าสถานะไม่ใช่ Cancelled ให้บันทึกสถานะ
         }
@@ -316,10 +326,22 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
         draggable: true,
         onClick: () => navigate(`/paymentInfo/${referenceNumber}`),
       });
-    } //else if(){
+    } 
+    
+  // ถ้าสถานะเป็น Paid แล้วให้ลบ toast เตือน และแสดง toast สำเร็จ
+  if (isPaid) {
+    if (warningToastId !== null) {
+      toast.dismiss(warningToastId);
+    }
+    toast.success("ท่านได้ดำเนินรายการเรียบร้อยแล้ว", {
+      position: "top-right",
+      autoClose: 5000,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+    });
+  }
       
-    // }
-
     // Cleanup function เพื่อลบ toast เดิมเมื่อ isCancelling เปลี่ยนเป็น true
     return () => {
       if (isCancelling) {
@@ -342,27 +364,49 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
     }
   };
 
+//   // ตรวจจับการเปลี่ยนแปลงของ response.data.status
+// useEffect(() => {
+//   if (response.data.status === "Completed") {
+//     setIsPaid(true);
+//   }
+// }, [response.data.status]); // ตรวจจับเฉพาะค่า status ที่เปลี่ยนแปลง
+
   // const handleUpload = () => {
   //   // Handle the image upload logic here
   //   console.log("Uploading slip:", selectedSlip);
   //   setIsModalOpen(false);
   // };
 
+// ประกาศฟังก์ชัน checkOrderStatus ไว้ข้างบน
+const checkOrderStatus = async (referenceNumber) => {
+  console.log("Checking order status for:", referenceNumber);
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/order/status/${referenceNumber}`,
+      {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      }
+    );
+    console.log("response status: ", response);
+    console.log("response.data.status : ", response.data.status);
+
+    if (response.data.status === "Completed") {
+      alert("คุณได้ดำเนินรายการแล้ว");
+      navigate("/cart");
+    } else {
+      setOrderStatus(response.data.status);
+    }
+  } catch (error) {
+    console.error("Error fetching order status:", error);
+    alert("เกิดข้อผิดพลาดในการตรวจสอบสถานะคำสั่งซื้อ");
+  }
+};
+
+
   const handleUpload = async (event) => {
     event.preventDefault();
-
-    // try {
-    //   const userId = localStorage.getItem("user_id"); // ดึง userId จาก localStorage หรือจาก state
-    //   console.log("userId: ", userId);
-      
-    //   const allIds = JSON.parse(localStorage.getItem("allIds")); // แปลง allIds จาก string เป็น array
-    //   console.log("allIds: ", allIds);
-
-    //   //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
-
-    //   const response = await axios.post(`${BASE_URL}/api/order`, { data: { userId, allIds } });
-
-    //   console.log("response: ", response);
 
       try {
         const userId = localStorage.getItem("user_id"); // ดึง userId จาก localStorage หรือจาก state
@@ -374,9 +418,19 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
         console.log("orderId: ", orderId);
   
         //const allIds = localStorage.getItem('allIds'); // ดึงข้อมูลจาก localStorage
+
+        const payload = {
+          userId: userId,
+          allIds: JSON.parse(localStorage.getItem("allIds") || "[]"),
+          orderId: orderId,
+          referenceNumber: referenceNumber, // ต้องแน่ใจว่าไม่ใช่ `undefined`
+        };
+        
+        console.log("Payload to be sent:", payload); // ตรวจสอบก่อนส่ง
   
-        const response = await axios.post(`${BASE_URL}/api/order-uploadslip`, {
-          data: { userId, allIds, orderId, referenceNumber },
+        const response = await axios.post(`${BASE_URL}/api/order-uploadslip`, payload ,{
+          // data: { userId, allIds, orderId, referenceNumber },
+
         });
   
         console.log("response: ", response);
@@ -384,6 +438,11 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
         if (response.status === 200) {
           // setCancelledOrder(true); // ตั้งค่า cancelledOrder เป็น true เมื่อกด Cancel
           alert("Order has been successfully Minus qty.");
+          checkOrderStatus(referenceNumber);
+
+          // ตรวจสอบสถานะคำสั่งซื้อจากฐานข้อมูล
+
+
           // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
           //window.location.reload();
           // navigate("/cart");
@@ -394,17 +453,6 @@ const PaymentInformation = ({ selectedPaymentMethod }) => {
       } finally {
         setIsCancelling(false); // รีเซ็ตค่าเมื่อเสร็จสิ้น
       }
-  
-      //if (response.status === 200) {
-        //alert("Order has been successfully canceled.");
-        // รีเฟรชหน้าหรือเปลี่ยนเส้นทางกลับไปยังหน้าหลัก
-        //window.location.reload();
-        // navigate('/cart');
-      //}
-    // } catch (error) {
-    //   console.error("Failed to cancel order:", error);
-    //   alert("Failed to cancel the order. Please try again.");
-    // }
   
     // Show SweetAlert confirmation that the process has started
     Swal.fire({

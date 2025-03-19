@@ -69,19 +69,19 @@ export const navBarList = [
   },
   {
     _id: 1003,
-    title: "About",
-    link: "/about",
+    title: "Profile",
+    link: "/profile/history",
   },
-  {
-    _id: 1004,
-    title: "Contact",
-    link: "contact",
-  },
-  {
-    _id: 1005,
-    title: "Journal",
-    link: "/journal",
-  },
+  // {
+  //   _id: 1004,
+  //   title: "Contact",
+  //   link: "contact",
+  // },
+  // {
+  //   _id: 1005,
+  //   title: "Journal",
+  //   link: "/journal",
+  // },
   {
     _id: 1006,
     title: "Seller",

@@ -2,10 +2,14 @@
 import logo from "./BrandGekkoShopPH.png";
 // import logoLight from "./logoLight.png";
 import logoLight from "./BrandGekkoShopPH.png";
+// import bannerImgOne from "./banner/bannerImgOne.webp";
 import bannerImgOne from "./banner/bannerImgOne.webp";
 import bannerImgTwo from "./banner/bannerImgTwo.webp";
 import bannerImgThree from "./banner/bannerImgThree.webp";
 
+// d:\Users\first\Downloads\banner12.12.jpg
+
+// import salebannerImgOne from "./banner/banner12.12.jpg";
 import salebannerImgOne from "./banner/Sale.jpeg";
 import salebannerImgTwo from "./banner/sale4.jpeg";
 import salebannerImgThree from "./banner/sale5.jpeg";

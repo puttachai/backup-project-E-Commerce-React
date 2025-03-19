@@ -304,7 +304,7 @@ const ItemCard = ({ item, handleSelectItem, isSelected }) => { //userId , handle
               </div> */}
               <div className="flex w-1/3 items-center text-lg font-semibold">
                 {item?.price !== undefined
-                  ? `$${item.price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
+                  ? `฿${item.price.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
                   : "Price not available"}
               </div>
               <div className="w-1/3 flex items-center gap-6 text-lg">
@@ -327,7 +327,7 @@ const ItemCard = ({ item, handleSelectItem, isSelected }) => { //userId , handle
               </div>
               <div className="w-1/3 flex items-center font-titleFont font-bold text-lg">
                 {/* <p>${item.quantity * item.price}</p> */}
-                <p>${(item.quantity * item.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</p>
+                <p>฿{(item.quantity * item.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</p>
               </div>
             </div>
           </div>

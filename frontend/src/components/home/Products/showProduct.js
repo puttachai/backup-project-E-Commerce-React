@@ -254,7 +254,7 @@ const ShowProduct = ({ currentItems = [], selectedBrands = [], selectedCategorie
 
 
     // Function โครงสร้างหน้าการแสดงข้อมูลสินค้า
-    const ShowProducts = ({ itemsPerPage = 6 }) => {
+    const ShowProducts = ({ itemsPerPage = 8 }) => {
         const [showproduct, setshowProducts] = useState([]);
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState(null);

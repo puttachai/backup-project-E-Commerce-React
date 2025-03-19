@@ -301,7 +301,7 @@ const Product = (props) => {
         
         <div onClick={handleProductDetails}>
           
-          <Image className="w-full h-full object-cover" imgSrc={props.img} /> {/* ++ object-cover */}
+          <Image className="w-full h-full object-cover" imgSrc={props.img || `${BASE_URL}/images/product/${props.img}`} /> {/* ++ object-cover */}
         
         </div>
         <div className="absolute top-6 left-8">
@@ -355,7 +355,7 @@ const Product = (props) => {
             {/*props.name*/}
           </h2>
           {/* <p className="text-[#767676] text-[14px]">${props.price}</p> */}
-          ${parseFloat(props.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+          ฿{parseFloat(props.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
           {/* ${props.price ? parseFloat(props.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "0.00"} */}
         </div>
         <div>

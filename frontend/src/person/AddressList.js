@@ -14,6 +14,7 @@ const AddressList = () => {
 
     const [loading, setLoading] = useState(false);//loading
     const [popupVisible, setPopupVisible] = useState(false);
+    const [popupVisibleEdit, setPopupVisibleEdit] = useState(false);
 
     //const [username, setUsername] = useState("");
     const [Datas, setDatas] = useState([]);//activeMenu
@@ -31,6 +32,9 @@ const AddressList = () => {
 
     const handlePopupOpen = () => setPopupVisible(true);
     const handlePopupClose = () => setPopupVisible(false);
+
+    const handlePopupOpenEdit = () => setPopupVisibleEdit(true);
+    const handlePopupCloseEdit = () => setPopupVisibleEdit(false);
 
     useEffect(() => {
         // Fetch user profile from backend
@@ -262,9 +266,25 @@ const AddressList = () => {
     };
 
 //สร้าง function ใหม่ ให้สามารถแก้ไขได้
-  const handleEdit = (id) => {
-    alert(`แก้ไขที่อยู่ ID: ${id}`);
-  };
+const handleEdit = (id) => {
+  const addressToEdit = Datas.find((item) => item.id === id);
+  
+  if (addressToEdit) {
+    setName_las(addressToEdit.name_lasname);
+    setPhone(addressToEdit.phone);
+    setaddressline(addressToEdit.addressline);
+    setCity(addressToEdit.city);
+    setProvince(addressToEdit.province);
+    setPostalCode(addressToEdit.postalCode);
+    setCountry(addressToEdit.country);
+
+    // Open the popup or modal for editing
+    // handlePopupOpen();
+      handlePopupOpenEdit();
+  }
+};
+
+console.log("handleEdit:",handleEdit);
 
   // const handleDelete = (id) => {
   //   alert(`ลบที่อยู่ ID: ${id}`);
@@ -273,8 +293,40 @@ const AddressList = () => {
   const handleSetDefault = (id) => {
     alert(`ตั้งค่าที่อยู่ ID: ${id} เป็นค่าตั้งต้น`);
   };
+  console.log("handleSetDefault:",handleSetDefault);
 
-
+  const handleUpdateAddress = async (e) => {
+    e.preventDefault();
+  
+    try {
+      const response = await axios.put(`${BASE_URL}/api/addresses/update`, {
+        id,
+        name_las,
+        phone,
+        addressline,
+        city,
+        province,
+        postalCode,
+        country,
+      });
+  
+      if (response.status === 200) {
+        const updatedAddress = response.data;
+        setDatas((prevDatas) =>
+          prevDatas.map((item) =>
+            item.id === id ? { ...item, ...updatedAddress } : item
+          )
+        );
+        alert("ที่อยู่ได้รับการอัพเดตเรียบร้อยแล้ว");
+        handlePopupClose();
+      } else {
+        console.error("Failed to update address");
+      }
+    } catch (error) {
+      console.error("Error updating address:", error);
+    }
+  };
+  
   
   if (loading) {
     return (
@@ -315,19 +367,19 @@ const AddressList = () => {
             <p className="mt-2 text-sm text-red-500">ค่าเริ่มต้น</p> 
           </div>
           <div className="flex flex-col space-y-2">
-            <button className="text-blue-600 hover:underline" onClick={(e) => handleEdit(e.target.value)}>
+            {/* <button className="text-blue-600 hover:underline" onClick={() => handleEdit(itemAdd.id)}>
               แก้ไข
-            </button>
+            </button> */}
             <button className="text-red-600 hover:underline" onClick={() => handleDelete(itemAdd.id)}>
               ลบ
             </button>
           </div>
         </div>
-        {!itemAdd.isDefault && (
+        {/* {!itemAdd.isDefault && (
           <button className="mt-4 px-4 py-2 text-sm text-white bg-gray-600 rounded hover:bg-gray-700" onClick={() => handleSetDefault(itemAdd.id)}>
             ตั้งเป็นค่าตั้งต้น
           </button>
-        )}
+        )} */}
       </div>
     ))
   ) : (
@@ -443,22 +495,112 @@ const AddressList = () => {
                     />
                     </div>
                     <div className="mt-4 flex justify-end space-x-2">
-                    <button
-                        className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                        onClick={handlePopupClose}
-                    >
-                        ยกเลิก
-                    </button>
-                    <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        onClick={handleSubmit}//handleInsertAddress
-                    >
-                        บันทึก
-                    </button>
+                      <button
+                          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                          onClick={handlePopupClose}
+                      >
+                          ยกเลิก
+                      </button>
+                      <button
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          onClick={handleSubmit}//handleInsertAddress
+                      >
+                          บันทึก
+                      </button>
                     </div>
                 </div>
                 </div>
          )}
+{popupVisibleEdit && (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
+    <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-4">แก้ไขที่อยู่</h2>
+        <form onSubmit={handleUpdateAddress}>
+        <div className="space-y-4">
+          <div>
+            <label>ชื่อ-นามสกุล</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={name_las}
+              onChange={(e) => setName_las(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>เบอร์โทรศัพท์</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>ที่อยู่</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={addressline}
+              onChange={(e) => setaddressline(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>เมือง</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>จังหวัด</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={province}
+              onChange={(e) => setProvince(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>รหัสไปรษณีย์</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              required
+            />
+          </div>
+          <div>
+            <label>ประเทศ</label>
+            <input
+              type="text"
+              className="w-full border rounded p-2"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              required
+            />
+          </div>
+          </div>
+          <div className="mt-4 flex justify-end space-x-2">
+            <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                อัพเดต
+            </button>
+            <button className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400" type="button" onClick={handlePopupCloseEdit} >
+                ยกเลิก
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )}
+
             
     </>
   );

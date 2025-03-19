@@ -43,31 +43,19 @@ const navigate = useNavigate();
     setErrPassword("");
   };
 
-//   useEffect(() => {
-//   const token = localStorage.getItem("authToken"); // ใช้โทเค็นจาก localStorage
-//   console.log(token);  // เช็คค่าของ token
-//   if (token) {
-//     fetch(`${BASE_URL}/api/cart`, {
-//       method: 'GET',
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//         'Content-Type': 'application/json',
-//       },
-//     })
-//       .then((response) => response.json())
-//       .then((data) => {
-//         // Dispatch เพื่ออัปเดต Redux state
-//         dispatch(setCart(data.cart));
-//       })
-//       .catch((error) => {
-//         console.error("Error fetching cart:", error);
-//       });
-//   }
-// }, [dispatch]);
-
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    // ตรวจสอบว่าช่อง Email/Username และ Password ไม่ว่าง
+    if (!email.trim()) {
+      setErrEmail("Please enter your email or username.");
+      return;
+    }
+    if (!password.trim()) {
+      setErrPassword("Please enter your password.");
+      return;
+    }
+
     try {//192.168.0.103
       //const token = localStorage.getItem('token'); // สมมติว่าโทเค็นถูกเก็บใน localStorage
       const response = await fetch(`${BASE_URL}/api/login/laravel`, {
@@ -78,21 +66,6 @@ const navigate = useNavigate();
         },
         body: JSON.stringify({ email, password }),
       });
-
-      // แปลง response เป็น JSON
-      //const data = await response.json();
-
-      // console.log("response.data",response.data);
-      // console.log("response.data",response);
-      // console.log("response.body",response.body);
-       //console.log("response.data: ",data);
-
-      // สมมุติว่า API ส่งข้อมูล user และ token กลับมา
-      // const { user, token } = data;
-    
-      // // Dispatch action loginSuccess เพื่อเก็บข้อมูลผู้ใช้และ token ใน Redux
-      // dispatch(loginSuccess(user, token));
-
 
       if (response.ok) {
         //const data = await response.json(); // รับ Token และข้อความตอบกลับ
@@ -177,28 +150,6 @@ useEffect(() => {
 }, [dispatch]);
 
 
-  // ============= Event Handler End here ===============
-  // const handleSignUp = (e) => {
-  //   e.preventDefault();
-
-  //   if (!email) {
-  //     setErrEmail("Enter your email");
-  //   }
-
-  //   if (!password) {
-  //     setErrPassword("Create a password");
-  //   }
-  //   // ============== Getting the value ==============
-  //   if (email && password) {
-  //     setSuccessMsg(
-  //       `Hello dear, Thank you for your attempt. We are processing to validate your access. Till then stay connected and additional assistance will be sent to you by your mail at ${email}`
-  //     );
-  //     setEmail("");
-  //     setPassword("");
-  //   }
-
-
-  // };
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -218,7 +169,7 @@ useEffect(() => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Get started fast with OREBI
+                Get started fast with GekkoShop
               </span>
               <br />
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
@@ -231,7 +182,7 @@ useEffect(() => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Access all OREBI services
+                Access all GekkoShop services
               </span>
               <br />
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis

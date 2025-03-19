@@ -54,11 +54,12 @@ const SignUp = () => {
         username,
         clientName,
         email,
+        phone,
         password
       });
 
       console.log(response.data);
-      alert('Signup successful!');
+      // alert('Signup successful!');
       // Show SweetAlert2 success message
       Swal.fire({
         icon: 'success',
@@ -149,7 +150,7 @@ const SignUp = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Get started fast with OREBI
+                Get started fast with GekkoShop
               </span>
               <br />
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
@@ -162,7 +163,7 @@ const SignUp = () => {
             </span>
             <p className="text-base text-gray-300">
               <span className="text-white font-semibold font-titleFont">
-                Access all OREBI services
+                Access all GekkoShop services
               </span>
               <br />
               Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ab omnis
@@ -400,13 +401,13 @@ const SignUp = () => {
                 type="checkbox"
               />
               <p className="text-sm text-primeColor">
-                I agree to the OREBI{" "}
+                I agree to the GekkoShop{" "}
                 <span className="text-blue-500">Terms of Service </span>and{" "}
                 <span className="text-blue-500">Privacy Policy</span>.
               </p>
             </div>
 
-            <button
+                  {/* <button
                       onClick={handleSubmit}
                       className={`${
                         checked
@@ -415,7 +416,18 @@ const SignUp = () => {
                       } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
                     >
                       Create Account
-                    </button>
+                  </button> */}
+
+                  <button
+                    onClick={handleSubmit}
+                    className={`${
+                      checked
+                        ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
+                        : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-not-allowed"
+                    } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+                  >
+                    Create Account
+                  </button>
 
                     
                     <p className="text-sm text-center font-titleFont font-medium">

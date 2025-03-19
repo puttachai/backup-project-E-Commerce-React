@@ -5,7 +5,7 @@ import BannerBottom from "../../components/Banner/BannerBottom";
 import BestSellers from "../../components/home/BestSellers/BestSellers";
 import NewArrivals from "../../components/home/NewArrivals/NewArrivals";
 import Sale from "../../components/home/Sale/Sale";
-import SpecialOffers from "../../components/home/SpecialOffers/SpecialOffers";
+// import SpecialOffers from "../../components/home/SpecialOffers/SpecialOffers";
 import SpecialCase from "../../components/SpecialCase/Specialcase"
 import YearProduct from "../../components/home/YearProduct/YearProduct";
 import CategoriesP from "../../components/categories/CategoriesP";
@@ -24,7 +24,7 @@ const Home = () => {
         <NewArrivals />
         <BestSellers />
         <YearProduct />
-        <SpecialOffers />
+        {/* <SpecialOffers /> */}
         {/* <SpecialCase /> */}
         <div className="relative overflow-y-auto">
           <SpecialCase />

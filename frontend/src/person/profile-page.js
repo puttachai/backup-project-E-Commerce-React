@@ -374,11 +374,16 @@
 ////////////////////////////////////////////////////////////////////
 
 import React, { useState } from "react"; //useEffect
-import { useSelector } from "react-redux"; //useSelector
-import { Link, Outlet } from "react-router-dom"; // Import Link for routing
+import { useSelector, useDispatch } from "react-redux"; //useSelector
+import { Link, Outlet, useNavigate } from "react-router-dom"; // Import Link for routing
 import { motion } from "framer-motion"; // Import motion for animation
 import emptyCart from "../../src/assets/images/emptyCart.png"; // Define the emptyCart image (adjust the path as necessary)
 import { FaCaretDown } from "react-icons/fa";
+import Swal from 'sweetalert2';
+import axios from 'axios';
+import {  setLoginStatus } from '../redux/logout'; // Correctly import the action
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 function ProfilePage() {
     
@@ -387,9 +392,65 @@ function ProfilePage() {
   // สร้าง state เพื่อจัดการการแสดงของ Sub Menu
   const [activeMenu, setActiveMenu] = useState(null);
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   // ฟังก์ชันสำหรับจัดการการคลิก Main Menu
   const toggleMenus = (menuName) => {
     setActiveMenu((prevMenu) => (prevMenu === menuName ? null : menuName));
+  };
+
+  
+  const handleLogout = async () => {
+    console.log('show:', isLoggedIn);
+  
+    Swal.fire({
+      title: "Do you want to logout?",
+      text: "Click confirm to log out.",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Confirm",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#4CAF50",
+      cancelButtonColor: "#f44336",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          // เรียก API เพื่อล้างข้อมูลตะกร้าบนเซิร์ฟเวอร์
+          const userId = localStorage.getItem('userId');
+          const token = localStorage.getItem('authToken');
+          if (userId) {
+            await axios.post(`${BASE_URL}/api/cart/clear`, { userId ,
+              headers: {
+              //'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },});
+          }
+  
+          // ล้างข้อมูลใน Redux
+          dispatch(setLoginStatus(false));
+          //dispatch(setCart([]));
+  
+          // ลบข้อมูลที่เก็บไว้ใน localStorage
+          localStorage.removeItem('image_profile');
+          localStorage.removeItem('username');
+          // localStorage.removeItem('status_seller');
+          localStorage.removeItem('token');
+          //authToken lสำคัญ !!
+          localStorage.removeItem('userId'); // ลบ userId
+          localStorage.removeItem('user_id'); // ลบ user_id เพื่อให้แน่ใจว่าไม่เหลือข้อมูลเก่า
+          localStorage.removeItem('authToken'); // ลบ authToken
+  
+          console.log('Logout successful');
+  
+          // นำทางผู้ใช้ไปยังหน้าแรก
+          navigate('/');
+        } catch (error) {
+          console.error('Logout failed:', error);
+          Swal.fire("Error", "Logout failed. Please try again.", "error");
+        }
+      }
+    });
   };
 
 return (
@@ -434,13 +495,14 @@ return (
               >
                 ที่อยู่
               </Link>
+              {/*  
               <Link
                 to="/profile/change-password"
                 className="flex items-center px-4 py-2.5 font-semibold text-gray-600 hover:text-indigo-900 hover:border hover:rounded-lg hover:bg-indigo-50 transition-colors"
               >
                 เปลี่ยนรหัสผ่าน
-              </Link>
-              <Link
+              </Link> */}
+              {/* <Link
                 to="/profile/privacy"
                 className="flex items-center px-4 py-2.5 font-semibold text-gray-600 hover:text-indigo-900 hover:border hover:rounded-lg hover:bg-indigo-50 transition-colors"
               >
@@ -451,7 +513,7 @@ return (
                 className="flex items-center px-4 py-2.5 font-semibold text-gray-600 hover:text-indigo-900 hover:border hover:rounded-lg hover:bg-indigo-50 transition-colors"
               >
                 ตั้งค่าการแจ้งเตือน
-              </Link>
+              </Link> */}
             </div>
           )}
         </div>
@@ -529,6 +591,20 @@ return (
             </div>
           )}
         </div>
+        <div className="mb-1 mb-3">
+          {/* Main Menu: Gekko Coins */}
+          <div className="flex items-center">
+          <h2 onClick={handleLogout} className="pl-3 text-1xl font-semibold text-gray-800 cursor-pointer">Logout</h2>
+            {/* <h2
+              className="pl-3 text-1xl font-semibold text-gray-800 cursor-pointer"
+              aria-label="Main Menu"
+              onClick={() => toggleMenus("gekkoCoins")}
+            >
+              Logout
+            </h2> */}
+            {/* <FaCaretDown className="ml-2"/> */}
+          </div>
+          </div>
       </div>
     </aside>
     <Outlet />

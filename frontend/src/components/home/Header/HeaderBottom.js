@@ -1,951 +1,3 @@
-// import React, { useState, useRef, useEffect } from "react";
-// import { motion } from "framer-motion";
-// import { HiOutlineMenuAlt4 } from "react-icons/hi";
-// import { FaSearch, FaUser, FaCaretDown, FaShoppingCart } from "react-icons/fa";
-// import Flex from "../../designLayouts/Flex";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useSelector } from "react-redux";
-// import { paginationItems } from "../../../constants";
-// import { BsSuitHeartFill } from "react-icons/bs";
-
-// const HeaderBottom = () => {
-//   const products = useSelector((state) => state.orebiReducer.products);
-//   const [show, setShow] = useState(false);
-//   const [showUser, setShowUser] = useState(false);
-//   const navigate = useNavigate();
-//   const ref = useRef();
-//   useEffect(() => {
-//     document.body.addEventListener("click", (e) => {
-//       if (ref.current.contains(e.target)) {
-//         setShow(true);
-//       } else {
-//         setShow(false);
-//       }
-//     });
-//   }, [show, ref]);
-
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [filteredProducts, setFilteredProducts] = useState([]);
-//   const [showSearchBar, setShowSearchBar] = useState(false);
-
-//   const handleSearch = (e) => {
-//     setSearchQuery(e.target.value);
-//   };
-
-//   useEffect(() => {
-//     const filtered = paginationItems.filter((item) =>
-//       item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-//     );
-//     setFilteredProducts(filtered);
-//   }, [searchQuery]);
-
-//   return (
-//     <div className="w-full bg-[#F5F5F3] relative">
-//       <div className="max-w-container mx-auto">
-//         <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-//           <div
-//             onClick={() => setShow(!show)}
-//             ref={ref}
-//             className="flex h-14 cursor-pointer items-center gap-2 text-primeColor"
-//           >
-//             <HiOutlineMenuAlt4 className="w-5 h-5" />
-//             <p className="text-[14px] font-normal">Shop by Category</p>
-
-//             {show && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to={"category/imprimante"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Imprimante
-//                   </li>
-//                 </Link>
-
-//                 <Link to={"category/ancre"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ancre
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Ruban"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ruban
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Bac"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Bac de dechet
-//                   </li>
-//                 </Link>
-//               </motion.ul>
-//             )}
-//           </div>
-//           <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
-//             <input
-//               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
-//               type="text"
-//               onChange={handleSearch}
-//               value={searchQuery}
-//               placeholder="Search your products here"
-//             />
-//             <FaSearch className="w-5 h-5" />
-//             {searchQuery && (
-//               <div
-//                 className={`w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer`}
-//               >
-//                 {searchQuery &&
-//                   filteredProducts.map((item) => (
-//                     <div
-//                       onClick={() =>
-//                         navigate(
-//                           `/product/${item.productName
-//                             .toLowerCase()
-//                             .split(" ")
-//                             .join("")}`,
-//                           {
-//                             state: {
-//                               item: item,
-//                             },
-//                           }
-//                         ) &
-//                         setShowSearchBar(true) &
-//                         setSearchQuery("")
-//                       }
-//                       key={item._id}
-//                       className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3"
-//                     >
-//                       <img className="w-24" src={item.img} alt="productImg" />
-//                       <div className="flex flex-col gap-1">
-//                         <p className="font-semibold text-lg">
-//                           {item.productName}
-//                         </p>
-//                         <p className="text-xs">
-//                           {item.des.length > 100
-//                             ? `${item.des.slice(0, 100)}...`
-//                             : item.des}
-//                         </p>
-//                         <p className="text-sm">
-//                           Price:{" "}
-//                           <span className="text-primeColor font-semibold">
-//                             ${item.price}
-//                           </span>
-//                         </p>
-//                       </div>
-//                     </div>
-//                   ))}
-//               </div>
-//             )}
-//           </div>
-//           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
-//             <div onClick={() => setShowUser(!showUser)} className="flex">
-//               <FaUser />
-//               <FaCaretDown />
-//             </div>
-//             {showUser && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to="/signin">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Login
-//                   </li>
-//                 </Link>
-//                 <Link onClick={() => setShowUser(false)} to="/signup">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Sign Up
-//                   </li>
-//                 </Link>
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Profile
-//                 </li>
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Others
-//                 </li>
-//               </motion.ul>
-//             )}
-//             <Link to="/cart">
-//               <div className="relative">
-//                 <FaShoppingCart />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//             <BsSuitHeartFill />
-//           </div>
-//         </Flex>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default HeaderBottom;
-
-
-// //ปรับแต่งครั้งที่1
-// import React, { useState, useRef, useEffect } from "react";
-// import { motion } from "framer-motion";
-// import { HiOutlineMenuAlt4 } from "react-icons/hi";
-// import { FaSearch, FaUser, FaCaretDown, FaShoppingCart } from "react-icons/fa";
-// import Flex from "../../designLayouts/Flex";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useSelector } from "react-redux";
-// import { paginationItems } from "../../../constants";
-// import { BsSuitHeartFill } from "react-icons/bs";
-
-// const HeaderBottom = () => {
-//   const products = useSelector((state) => state.orebiReducer.products);
-//   const [show, setShow] = useState(false);
-//   const [showUser, setShowUser] = useState(false);
-//   const navigate = useNavigate();
-//   const ref = useRef();
-//   //
-//   useEffect(() => {
-//     document.body.addEventListener("click", (e) => {
-//       if (ref.current.contains(e.target)) {
-//         setShow(true);
-//       } else {
-//         setShow(false);
-//       }
-//     });
-//   }, [show, ref]);
-
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [filteredProducts, setFilteredProducts] = useState([]);
-
-//   const handleSearch = (e) => {
-//     setSearchQuery(e.target.value);
-//   };
-// //
-//   useEffect(() => {
-//     const filtered = paginationItems.filter((item) =>
-//       item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-//     );
-//     setFilteredProducts(filtered);
-//   }, [searchQuery]);
-
-//   return (
-//     <div className="w-full bg-[#F5F5F3] relative">
-//       <div className="max-w-container mx-auto">
-//         <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-//           <div
-//             onClick={() => setShow(!show)}
-//             ref={ref}
-//             className="flex h-14 cursor-pointer items-center gap-2 text-primeColor"
-//           >
-//             {/*Menu Category*/}
-//             <HiOutlineMenuAlt4 className="w-5 h-5" />
-//             <p className="text-[14px] font-normal">Shop by Category</p>
-
-//             {show && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to={"category/imprimante"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Imprimante
-//                   </li>
-//                 </Link>
-
-//                 <Link to={"category/ancre"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ancre
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Ruban"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ruban
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Bac"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Bac de dechet
-//                   </li>
-//                 </Link>
-//                 <Link to="/cart">
-//               <div className="relative">
-//                 {/*ShoppingCart*/}
-//                 <FaShoppingCart />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//             {/*HeartFill*/}
-//             {/*<BsSuitHeartFill />*/}
-//             <Link to="/bssuitheartfill">
-//               <div className="relative">
-//                 {/*HeartFill*/}
-//                 <BsSuitHeartFill />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {BsSuitHeartFill.length > 0 ? BsSuitHeartFill.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-            
-//               </motion.ul>
-//             )}
-//           </div>
-
-//           <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
-//              {/*Search your products*/}
-//             <input
-//               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
-//               type="text"
-//               onChange={handleSearch}
-//               value={searchQuery}
-//               placeholder="Search your products here"
-//             />
-//             <FaSearch className="w-5 h-5" />
-//             {searchQuery && (
-//               <div
-//                 className={`w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer`}
-//               >
-//                 {searchQuery &&
-//                   filteredProducts.map((item) => (
-//                     <div
-//                       onClick={() =>
-//                         navigate(
-//                           `/product/${item.productName
-//                             .toLowerCase()
-//                             .split(" ")
-//                             .join("")}`,
-//                           {
-//                             state: {
-//                               item: item,
-//                             },
-//                           }
-//                         ) &
-//                         setSearchQuery("")
-//                       }
-//                       key={item._id}
-//                       className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3"
-//                     >
-//                       <img className="w-24" src={item.img} alt="productImg" />
-//                       <div className="flex flex-col gap-1">
-//                         <p className="font-semibold text-lg">
-//                           {item.productName}
-//                         </p>
-//                         <p className="text-xs">
-//                           {item.des.length > 100
-//                             ? `${item.des.slice(0, 100)}...`
-//                             : item.des}
-//                         </p>
-//                         <p className="text-sm">
-//                           Price:{" "}
-//                           <span className="text-primeColor font-semibold">
-//                             ${item.price}
-//                           </span>
-//                         </p>
-//                       </div>
-//                     </div>
-//                   ))}
-//               </div>
-//             )}
-//           </div>
-
-//           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
-//             <div onClick={() => setShowUser(!showUser)} className="flex">
-//               {/*AccountUser*/}
-//               <FaUser />
-//               {/*Caret*/}
-//               <FaCaretDown />
-//             </div>
-
-//             {/*แสดงรายการ Dropdown ของ AccountUser*/}
-
-//             {showUser && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to="/signin">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Login
-//                   </li>
-//                 </Link>
-//                 <Link onClick={() => setShowUser(false)} to="/signup">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Sign Up
-//                   </li>
-//                 </Link>
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Profile
-//                 </li>
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Others
-//                 </li>
-//               </motion.ul>
-//             )}
-
-//             <Link to="/cart">
-//               <div className="relative">
-//                 {/*ShoppingCart*/}
-//                 <FaShoppingCart />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//             {/*HeartFill*/}
-//             {/*<BsSuitHeartFill />*/}
-//             <Link to="/bssuitheartfill">
-//               <div className="relative">
-//                 {/*HeartFill*/}
-//                 <BsSuitHeartFill />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {BsSuitHeartFill.length > 0 ? BsSuitHeartFill.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//           </div>
-//         </Flex>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default HeaderBottom;
-
-
-
-
-// import React, { useState, useRef, useEffect } from "react";
-// import { motion } from "framer-motion";
-// import { HiOutlineMenuAlt4 } from "react-icons/hi";
-// import { FaSearch, FaUser, FaCaretDown, FaShoppingCart } from "react-icons/fa";
-// import Flex from "../../designLayouts/Flex";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useSelector } from "react-redux";
-// import { paginationItems } from "../../../constants";
-// import { BsSuitHeartFill } from "react-icons/bs";
-
-// const HeaderBottom = () => {
-//   const products = useSelector((state) => state.orebiReducer.products);
-//   //const isLoggedIn = useSelector((state) => state.userReducer.isLoggedIn); // เพิ่มตัวแปรเพื่อตรวจสอบสถานะการเข้าสู่ระบบ
-
-//     // ใช้ useSelector เพื่อดึงค่าจาก Redux state
-//     const isLoggedIn = useSelector((state) => state.user?.isLoggedIn);
-
-//     // ตรวจสอบกรณีที่ isLoggedIn เป็น undefined
-//     if (isLoggedIn === undefined) {
-//       return <div>กำลังโหลด...</div>;
-//     }
-
-//   const [show, setShow] = useState(false);
-//   const [showUser, setShowUser] = useState(false);
-//   const navigate = useNavigate();
-//   const ref = useRef(null);
-
-//   const handleLogout = () => {
-//     // ลบข้อมูลการล็อกอินจาก localStorage หรือ sessionStorage
-//     localStorage.removeItem('userToken'); // หรือ sessionStorage.removeItem('userToken');
-    
-//     // รีไดเรกต์ผู้ใช้ไปที่หน้า SignIn
-//     navigate('/signin');
-//   };
-
-//   useEffect(() => {
-//     const handleClickOutside = (e) => {
-//       if (ref.current && !ref.current.contains(e.target)) {
-//         setShow(false);
-//       }
-//     };
-
-//     document.body.addEventListener("click", handleClickOutside);
-
-//     return () => {
-//       document.body.removeEventListener("click", handleClickOutside);
-//     };
-//   }, [ref]);
-
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [filteredProducts, setFilteredProducts] = useState([]);
-
-//   const handleSearch = (e) => {
-//     setSearchQuery(e.target.value);
-//   };
-
-//   useEffect(() => {
-//     const filtered = paginationItems.filter((item) =>
-//       item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-//     );
-//     setFilteredProducts(filtered);
-//   }, [searchQuery]);
-
-//   return (
-//     <div className="w-full bg-[#F5F5F3] relative">
-//       <div className="max-w-container mx-auto">
-//         <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-//           <div
-//             onClick={() => setShow(!show)}
-//             ref={ref}
-//             className="flex h-14 cursor-pointer items-center gap-2 text-primeColor"
-//           >
-//             <HiOutlineMenuAlt4 className="w-5 h-5" />
-//             <p className="text-[14px] font-normal">Shop by Category</p>
-
-//             {show && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to={"category/imprimante"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Imprimante
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/ancre"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ancre
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Ruban"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ruban
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Bac"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Bac de dechet
-//                   </li>
-//                 </Link>
-//               </motion.ul>
-//             )}
-//           </div>
-
-//           <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
-//             <input
-//               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
-//               type="text"
-//               onChange={handleSearch}
-//               value={searchQuery}
-//               placeholder="Search your products here"
-//             />
-//             <FaSearch className="w-5 h-5" />
-//             {searchQuery && (
-//               <div
-//                 className={`w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer`}
-//               >
-//                 {searchQuery &&
-//                   filteredProducts.map((item) => (
-//                     <div
-//                       onClick={() =>
-//                         navigate(
-//                           `/product/${item.productName
-//                             .toLowerCase()
-//                             .split(" ")
-//                             .join("")}`,
-//                           {
-//                             state: {
-//                               item: item,
-//                             },
-//                           }
-//                         ) &
-//                         setSearchQuery("")
-//                       }
-//                       key={item._id}
-//                       className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3"
-//                     >
-//                       <img className="w-24" src={item.img} alt="productImg" />
-//                       <div className="flex flex-col gap-1">
-//                         <p className="font-semibold text-lg">
-//                           {item.productName}
-//                         </p>
-//                         <p className="text-xs">
-//                           {item.des.length > 100
-//                             ? `${item.des.slice(0, 100)}...`
-//                             : item.des}
-//                         </p>
-//                         <p className="text-sm">
-//                           Price:{" "}
-//                           <span className="text-primeColor font-semibold">
-//                             ${item.price}
-//                           </span>
-//                         </p>
-//                       </div>
-//                     </div>
-//                   ))}
-//               </div>
-//             )}
-//           </div>
-
-//           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
-//             <div onClick={() => setShowUser(!showUser)} className="flex">
-//               <FaUser />
-//               <FaCaretDown />
-//             </div>
-
-//             {showUser && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
-//               >
-
-//             {showUser && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 {isLoggedIn ? (
-//                   <>
-//                     <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                       Profile
-//                     </li>
-//                     <li
-//                       onClick={handleLogout} 
-//                         // เพิ่มโค้ดสำหรับออกจากระบบ
-//                         className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer"
-//                          >
-//                       Logout
-//                     </li>
-//                   </>
-//                 ) : (
-//                   <>
-//                     <Link to="/signin">
-//                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                         Login
-//                       </li>
-//                     </Link>
-//                     <Link onClick={() => setShowUser(false)} to="/signup">
-//                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                         Sign Up
-//                       </li>
-//                     </Link>
-//                   </>
-//                 )}
-//               </motion.ul>
-//             )}
-
-//                 {/*}
-//                 <Link to="/signin">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Login
-//                   </li>
-//                 </Link>
-
-//                 <Link onClick={() => setShowUser(false)} to="/signup">
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Sign Up
-//                   </li>
-//                 </Link> */}
-
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Profile
-//                 </li>
-//                 <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400  hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                   Others
-//                 </li>
-//               </motion.ul>
-//             )}
-
-//             <Link to="/cart">
-//               <div className="relative">
-//                 <FaShoppingCart />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//             <Link to="/bssuitheartfill">
-//               <div className="relative">
-//                 <BsSuitHeartFill />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//           </div>
-//         </Flex>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default HeaderBottom;
-
-
-
-
-
-
-
-
-// import React, { useState, useRef, useEffect } from "react";
-// import { motion } from "framer-motion";
-// import { HiOutlineMenuAlt4 } from "react-icons/hi";
-// import { FaSearch, FaUser, FaCaretDown, FaShoppingCart } from "react-icons/fa";
-// import Flex from "../../designLayouts/Flex";
-// import { Link, useNavigate } from "react-router-dom";
-// import { useSelector, useDispatch } from "react-redux";
-// import { paginationItems } from "../../../constants";
-// import { BsSuitHeartFill } from "react-icons/bs";
-// import { setLoginStatus } from '../../../redux/logout';//setLogoutStatus
-// //import { useDispatch } from 'react-redux';
-// //import { setLoginStatus } from '../../../redux/logout'; // Correctly import the action
-// import axios from 'axios';
-
-
-// const HeaderBottom = () => {
-//   const products = useSelector((state) => state.orebiReducer.products);
-//   //const isLoggedIn = useSelector((state) => state.user?.isLoggedIn);
-//   const isLoggedIn = useSelector((state) => state.user?.isLoggedIn);
-//   const dispatch = useDispatch();
-//   //const isLoggedOut = setLoginStatus((state) => state.user?.isLoggedOut);
-//   //const dispatch = useDispatch();
-//   //const setLogouts = setLogoutStatus();
-
-//   const [show, setShow] = useState(false);
-//   const [showUser, setShowUser] = useState(false);
-//   const navigate = useNavigate();
-//   const ref = useRef(null);
-//   const [searchQuery, setSearchQuery] = useState("");
-//   const [filteredProducts, setFilteredProducts] = useState([]);
-
-//   const BASE_URL = process.env.REACT_APP_BASE_URL;
-
-//   useEffect(() => {
-//     const handleClickOutside = (e) => {
-//       if (ref.current && !ref.current.contains(e.target)) {
-//         setShow(false);
-//       }
-//     };
-//     document.body.addEventListener("click", handleClickOutside);
-//     return () => {
-//       document.body.removeEventListener("click", handleClickOutside);
-//     };
-//   }, [ref]);
-
-//   useEffect(() => {
-//     const filtered = paginationItems.filter((item) =>
-//       item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-//     );
-//     setFilteredProducts(filtered);
-//   }, [searchQuery]);
-
-//   // const handleLogout = () => {
-//   //   localStorage.removeItem('userToken');
-//   //   navigate('/signin');
-//   // };
-//   // const handleLogout = () => {
-//   //   setLogouts({ type: 'SET_LOGIN_STATUS', payload: false });
-//   //   navigate('/signin'); // เปลี่ยนเส้นทางไปที่หน้าเข้าสู่ระบบหลังจากออกจากระบบ
-//   // };
-
-//   const handleLogout = () => {
-//     // เรียก API logout
-//     axios.post(`${BASE_URL}/api/logout`)
-//       .then((response) => {
-//         // ตั้ง state loggedIn เป็น false
-//         //setLoginStatus({ type: 'SET_LOGIN_STATUS', payload: false });
-//         //console.log(response.data); // Use the response here
-        
-//         dispatch(setLoginStatus(false)); // Dispatch the logout status update
-//         // ลบ token ออกจาก localStorage (ถ้ามี)
-//         localStorage.removeItem('token'); // Remove token from localStorage
-  
-//         // นำผู้ใช้ไปหน้า login
-//         navigate('/signin');// Redirect to login page
-//         console.log(response.data); // Use the response here
-//       })
-//       .catch((error) => {
-//         console.error('Logout failed:', error);
-//       });
-//   };
-  
-  
-
-//   const handleSearch = (e) => {
-//     setSearchQuery(e.target.value);
-//   };
-
-//   // if (isLoggedIn === undefined) {
-//   //   return <div>กำลังโหลด...</div>;
-//   // }
-
-//   return (
-//     <div className="w-full bg-[#F5F5F3] relative">
-//       <div className="max-w-container mx-auto">
-//         <Flex className="flex flex-col lg:flex-row items-start lg:items-center justify-between w-full px-4 pb-4 lg:pb-0 h-full lg:h-24">
-//           <div
-//             onClick={() => setShow(!show)}
-//             ref={ref}
-//             className="flex h-14 cursor-pointer items-center gap-2 text-primeColor"
-//           >
-//             <HiOutlineMenuAlt4 className="w-5 h-5" />
-//             <p className="text-[14px] font-normal">Shop by Category</p>
-
-//             {show && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 <Link to={"category/imprimante"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Imprimante
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/ancre"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ancre
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Ruban"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     ruban
-//                   </li>
-//                 </Link>
-//                 <Link to={"category/Bac"}>
-//                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                     Bac de dechet
-//                   </li>
-//                 </Link>
-//               </motion.ul>
-//             )}
-//           </div>
-
-//           <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
-//             <input
-//               className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
-//               type="text"
-//               onChange={handleSearch}
-//               value={searchQuery}
-//               placeholder="Search your products here"
-//             />
-//             <FaSearch className="w-5 h-5" />
-//             {searchQuery && (
-//               <div
-//                 className={`w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer`}
-//               >
-//                 {searchQuery &&
-//                   filteredProducts.map((item) => (
-//                     <div
-//                       onClick={() =>
-//                         navigate(
-//                           `/product/${item.productName
-//                             .toLowerCase()
-//                             .split(" ")
-//                             .join("")}`,
-//                           {
-//                             state: {
-//                               item: item,
-//                             },
-//                           }
-//                         ) & setSearchQuery("")
-//                       }
-//                       key={item._id}
-//                       className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3"
-//                     >
-//                       <img className="w-24" src={item.img} alt="productImg" />
-//                       <div className="flex flex-col gap-1">
-//                         <p className="font-semibold text-lg">
-//                           {item.productName}
-//                         </p>
-//                         <p className="text-xs">
-//                           {item.des.length > 100
-//                             ? `${item.des.slice(0, 100)}...`
-//                             : item.des}
-//                         </p>
-//                         <p className="text-sm">
-//                           Price:{" "}
-//                           <span className="text-primeColor font-semibold">
-//                             ${item.price}
-//                           </span>
-//                         </p>
-//                       </div>
-//                     </div>
-//                   ))}
-//               </div>
-//             )}
-//           </div>
-
-//           <div className="flex gap-4 mt-2 lg:mt-0 items-center pr-6 cursor-pointer relative">
-//             <div onClick={() => setShowUser(!showUser)} className="flex">
-//               <FaUser />
-//               <FaCaretDown />
-//             </div>
-
-//             {showUser && (
-//               <motion.ul
-//                 initial={{ y: 30, opacity: 0 }}
-//                 animate={{ y: 0, opacity: 1 }}
-//                 transition={{ duration: 0.5 }}
-//                 className="absolute top-6 left-0 z-50 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6"
-//               >
-//                 {isLoggedIn ? (
-//                   <>
-//                     <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                       Profile
-//                     </li>
-//                     <li
-//                       onClick={handleLogout}
-//                       className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer"
-//                     >
-//                       Logout
-//                     </li>
-//                   </>
-//                 ) : (
-//                   <>
-//                     <Link to="/signin">
-//                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                         Login
-//                       </li>
-//                     </Link>
-//                     <Link onClick={() => setShowUser(false)} to="/signup">
-//                       <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-//                         Sign Up
-//                       </li>
-//                     </Link>
-//                   </>
-//                 )}
-//               </motion.ul>
-//             )}
-
-//             <Link to="/cart">
-//               <div className="relative">
-//                 <FaShoppingCart />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//             <Link to="/bssuitheartfill">
-//               <div className="relative">
-//                 <BsSuitHeartFill />
-//                 <span className="absolute font-titleFont top-3 -right-2 text-xs w-4 h-4 flex items-center justify-center rounded-full bg-primeColor text-white">
-//                   {products.length > 0 ? products.length : 0}
-//                 </span>
-//               </div>
-//             </Link>
-//           </div>
-//         </Flex>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default HeaderBottom;
-
-
-
 
 import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -1005,10 +57,18 @@ const HeaderBottom = () => {
   //const [IsVisiblehidden, setIsVisiblehidden] = useState(window.innerWidth >= 960);
 
   const ref = useRef(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredProducts, setFilteredProducts] = useState([]);
+  // const [paginationItems, setPaginationItems] = useState([]); // รายการสินค้าทั้งหมดที่ได้จาก API
+  const [paginationItemsState, setPaginationItemsState] = useState(paginationItems || []);  // ให้ค่าเริ่มต้นเป็น array ว่างถ้าค่าที่ import มาเป็น undefined
 
   //const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+  // const StatusSeller = localStorage.getItem('status_seller');
+  // console.log("Log StatusSeller : ", StatusSeller);
+
+  const [isSeller, setIsSeller] = useState(false);
 
   const userName = localStorage.getItem('username');
   //const imageProfile = localStorage.getItem('image_profile');
@@ -1021,27 +81,37 @@ const HeaderBottom = () => {
   const userMenuRefresize = useRef(null);
   console.log("userMenuRef useRef status: ",userMenuRefresize);
 
+//
+  useEffect(() => {
+    const userId = localStorage.getItem('user_id');
+
+    if (!userId) {
+      console.log("ยังไม่มี user ทำการ login");
+      setIsSeller(false); // ตั้งค่าให้ไม่แสดงปุ่ม seller
+      return; // ออกจาก useEffect
+    }
+
+    // เรียก API เพื่อตรวจสอบสถานะของ user
+    axios.get(`${BASE_URL}/api/check-status-user_seller/${userId}`, { 
+      headers:{
+        'Cache-Control': 'no-cache',// ห้ามแคช
+      },
+      // withCredentials: true 
+    })
+      .then((response) => {
+        setIsSeller(response.data.isSeller); // อัปเดตค่า isSeller
+        console.log("Log Datacheck-status: ",response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching seller status:", error);
+      });
+  }, []);
+
     // เพิ่ม useEffect เพื่อให้แน่ใจว่า dropdown ไม่ถูกปิด
     useEffect(() => {
       if (showAll) {
         setShow(true);  // ถ้าแสดงทั้งหมด ให้ dropdown เปิดอยู่
       }
-      // else if(!showAll == true){
-      //   setShow(true);  // ถ้าแสดงทั้งหมด ให้ dropdown เปิดอยู่
-      // }
-
-      // switch(showAll) {
-      //   case showAll:
-      //     // code block
-      //     setShow(true);
-      //     break;
-      //   case !showAll == true:
-      //     // code block
-      //     setShow(true);
-      //     break;
-      //   default:
-      //     // code block
-      // }
 
     }, [showAll]);
 
@@ -1086,13 +156,41 @@ const HeaderBottom = () => {
     };
   }, []);
 
+
+  // เมื่อ searchQuery เปลี่ยน, เรียกใช้ API เพื่อดึงสินค้าจากฐานข้อมูล
   useEffect(() => {
-    const filtered = paginationItems.filter((item) =>
-      item.productName.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    setFilteredProducts(filtered);
+    const fetchSearchResults = async () => {
+      if (searchQuery.length === 0) return; // ถ้าไม่มีคำค้นหาก็ไม่ทำการค้นหาผ่าน API
+
+      try {
+        const response = await axios.get(`${BASE_URL}/api/search-products`, {
+          params: { query: searchQuery },
+        });
+        setPaginationItemsState(response.data.products || []);  // ตั้งค่าผลลัพธ์ที่ได้จาก API และตรวจสอบว่าเป็น array
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchSearchResults();
   }, [searchQuery]);
 
+  
+  //
+  useEffect(() => {
+    if (!paginationItemsState || !Array.isArray(paginationItemsState)) return;  // ตรวจสอบให้แน่ใจว่า paginationItemsState เป็น array
+    // const filtered = paginationItemsState.filter((item) =>
+    //   item.productName.toLowerCase().includes(searchQuery.toLowerCase())
+    // );
+    const searchResults = paginationItemsState.filter(product => 
+      (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    setFilteredProducts(searchResults);
+    // setFilteredProducts(filtered);
+  }, [searchQuery, paginationItemsState]);
+
+  //
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     console.log("Header is show token :",token);
@@ -1112,7 +210,7 @@ const HeaderBottom = () => {
     }
   }, [dispatch]);
   
-
+//
   const handleLogout = async () => {
     console.log('show:', isLoggedIn);
   
@@ -1146,6 +244,7 @@ const HeaderBottom = () => {
           // ลบข้อมูลที่เก็บไว้ใน localStorage
           localStorage.removeItem('image_profile');
           localStorage.removeItem('username');
+          // localStorage.removeItem('status_seller');
           localStorage.removeItem('token');
           //authToken lสำคัญ !!
           localStorage.removeItem('userId'); // ลบ userId
@@ -1223,19 +322,6 @@ const HeaderBottom = () => {
         .map(category => ({categories_id: category.categories_id, category_name: category.category_name})))];   // ดึงแค่ category_name แล้วแปลงเป็น Set เพื่อให้ไม่ซ้ำกัน
       setcategorydata(uniqueCategories);
       setLoading(false);
-      // กรองค่า category_name ที่ไม่เป็น null หรือ undefined และไม่ซ้ำกัน
-      // const uniqueCategories = response.data
-      //   .filter(category => category.category_name)  // กรอง category_name ที่ไม่ใช่ null
-      //   .map(category => ({
-      //     category_id: category.categories_id,  // ดึง categories_id ด้วย
-      //     category_name: category.category_name
-      //   }));
-      //   console.log("uniqueCategories: ",uniqueCategories);
-      // setcategorydata(uniqueCategories);
-      // setLoading(false);
-    //     console.log("API Response:", response.data);  // เช็คค่าที่ React ได้รับจาก API
-    //     setcategorydata(response.data);
-    //     setLoading(false);
     })
     .catch((err) => {
         console.error("Error fetching categories:", err);
@@ -1316,57 +402,6 @@ console.log("Profileuser: ", Profileuser);
                     )}
                   </motion.ul>
                 )}
-
-              {/* Categories Dropdown
-              {show && (
-                <motion.ul
-                  initial={{ y: 30, opacity: 0 }}
-                  animate={{ y: -30, opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6"
-                >
-                  {categorydata && categorydata.length > 0 ? (
-                    categorydata.map((category, index) => (
-                      <Link key={index} to={`/category/${category ? category.toLowerCase() : ""}`}>
-                        <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                          {category}
-                        </li>
-                      </Link>
-                    ))
-                  ) : (
-                    <li>No categories available</li>
-                  )}
-                </motion.ul>
-              )} */}
-
-               {/* Categories Dropdown */}
-            {/* {show && (
-              <motion.ul initial={{ y: 30, opacity: 0 }} animate={{ y: -30, opacity: 1 }} transition={{ duration: 0.5 }} className="absolute top-36 z-50 bg-primeColor w-auto text-[#767676] h-auto p-4 pb-6">
-                {/* Dropdown Items 
-
-                <Link to={"category/imprimante"}>
-                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                     Imprimante
-                   </li>
-                 </Link>
-                 <Link to={"category/ancre"}>
-                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                     ancre
-                   </li>
-                 </Link>
-                 <Link to={"category/Ruban"}>
-                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                     ruban
-                   </li>
-                 </Link>
-                 <Link to={"category/Bac"}>
-                   <li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">
-                     Bac de dechet
-                   </li>
-                 </Link>
-
-              </motion.ul>
-            )} */}
             
             </div>
 
@@ -1404,11 +439,12 @@ console.log("Profileuser: ", Profileuser);
             </div>
 
             {showUserresize && (
-              <motion.ul  initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`absolute top-6 z-50 right-0 bg-primeColor  text-[#767676] h-auto p-4 pb-6 `}> {/* w-44* ,${isVisible ?  "left-0":"right-0" }*/}
+              <motion.ul  initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`absolute top-8 z-50 right-0 bg-primeColor  text-[#767676] h-auto p-4 pb-6 `}> {/* Laster 03/03/2568 */}
                 {isLoggedIn ? (
                   <>
                     <Link to="/profile/history"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Profile</li></Link>
                     {/* <Link to="/profile"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Profile</li></Link> */}
+                    <Link to="/sellerRegister"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">sellerRegister</li></Link>
                     <li onClick={handleLogout} className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Logout</li>
                   </>
                 ) : (
@@ -1430,27 +466,53 @@ console.log("Profileuser: ", Profileuser);
           {/* </div> */}
 
 
-
           {/* Search bar */}
-          <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
-            <input type="text" onChange={handleSearch} value={searchQuery} placeholder="Search your products here" className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]" />
-            <FaSearch className="w-5 h-5" />
-            {/* Filtered Products */}
-            {searchQuery && (
-              <div className="w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer">
-                {filteredProducts.map((item) => (
-                  <div onClick={() => { navigate(`/product/${item.productName.toLowerCase().split(" ").join("")}`, { state: { item } }); setSearchQuery(""); }} key={item._id} className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3">
-                    <img className="w-24" src={item.img} alt="productImg" />
-                    <div className="flex flex-col gap-1">
-                      <p className="font-semibold text-lg">{item.productName}</p>
-                      <p className="text-xs">{item.des.length > 100 ? `${item.des.slice(0, 100)}...` : item.des}</p>
-                      <p className="text-sm">Price: <span className="text-primeColor font-semibold">${item.price}</span></p>
-                    </div>
+      <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
+        <input
+          type="text"
+          onChange={handleSearch}
+          value={searchQuery}
+          placeholder="Search your products here"
+          className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]"
+        />
+        <FaSearch className="w-5 h-5" />
+        {/* Filtered Products */}
+        {searchQuery && (
+          <div className="w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer">
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => {
+                    navigate(`/product/${item.name.toLowerCase().split(" ").join("")}`, {
+                      state: { item },
+                    });
+                    setSearchQuery(""); // เคลียร์คำค้นหาหลังจากคลิก
+                  }}
+                  className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3"
+                >
+                  <img className="w-24" src={`${BASE_URL}/images/product/${item.image}`} alt="productImg" />
+                  {/* <img className="w-24" src={item.image} alt="productImg" /> */}
+                  <div className="flex flex-col gap-1">
+                    <p className="font-semibold text-lg">{item.name}</p>
+                    <p className="text-xs">
+                      {item.description && item.description.length > 100
+                        ? `${item.description.slice(0, 100)}...`
+                        : item.description}
+                    </p>
+                    <p className="text-sm">
+                      Price: <span className="text-primeColor font-semibold">${item.price}</span>
+                    </p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))
+            ) : (
+              <p>No products found</p>
             )}
           </div>
+        )}
+      </div>
+
           
           {/* {isVisible && ( */}
           {/* User Profile and Cart */}
@@ -1486,12 +548,14 @@ console.log("Profileuser: ", Profileuser);
             </div>
 
             {showUser && (
-              <motion.ul  initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`absolute top-6 z-50 right-0 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6 ${isMobile ?  "left-0":"right-0" }`}>
+              <motion.ul  initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5 }} className={`absolute top-8 z-50 right-0 bg-primeColor w-44 text-[#767676] h-auto p-4 pb-6 ${isMobile ?  "left-0":"right-0" }`}>
                 {isLoggedIn ? (
                   <>
                     <Link to="/profile/history"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Profile</li></Link>
                     {/* <Link to="/promptpaycheckout"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Paymentgateway</li></Link> */}
-                    <Link to="/sellerRegister"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">sellerRegister</li></Link>
+                    {!isSeller && (
+                      <Link to="/sellerRegister"><li className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">sellerRegister</li></Link>
+                    )}
                     <li onClick={handleLogout} className="text-gray-400 px-4 py-1 border-b-[1px] border-b-gray-400 hover:border-b-white hover:text-white duration-300 cursor-pointer">Logout</li>
                   </>
                 ) : (
@@ -1516,6 +580,29 @@ console.log("Profileuser: ", Profileuser);
 };
 
 export default HeaderBottom;
+
+
+//แก้ไข Search bar 02/03/68
+// {/* Search bar */}
+// <div className="relative w-full lg:w-[600px] h-[50px] text-base text-primeColor bg-white flex items-center gap-2 justify-between px-6 rounded-xl">
+// <input type="text" onChange={handleSearch} value={searchQuery} placeholder="Search your products here" className="flex-1 h-full outline-none placeholder:text-[#C4C4C4] placeholder:text-[14px]" />
+// <FaSearch className="w-5 h-5" />
+// {/* Filtered Products */}
+// {searchQuery && (
+//   <div className="w-full mx-auto h-96 bg-white top-16 absolute left-0 z-50 overflow-y-scroll shadow-2xl scrollbar-hide cursor-pointer">
+//     {filteredProducts.map((item) => (
+//       <div onClick={() => { navigate(`/product/${item.productName.toLowerCase().split(" ").join("")}`, { state: { item } }); setSearchQuery(""); }} key={item._id} className="max-w-[600px] h-28 bg-gray-100 mb-3 flex items-center gap-3">
+//         <img className="w-24" src={item.img} alt="productImg" />
+//         <div className="flex flex-col gap-1">
+//           <p className="font-semibold text-lg">{item.productName}</p>
+//           <p className="text-xs">{item.des.length > 100 ? `${item.des.slice(0, 100)}...` : item.des}</p>
+//           <p className="text-sm">Price: <span className="text-primeColor font-semibold">${item.price}</span></p>
+//         </div>
+//       </div>
+//     ))}
+//   </div>
+// )}
+// </div>
 
 
 

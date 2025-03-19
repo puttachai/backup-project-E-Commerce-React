@@ -137,6 +137,7 @@ import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 // import { toast } from "react-toastify";
 import axios from "axios";
+// import Image from "../../designLayouts/Image";
 
 const ProductInfo = ({ productInfo }) => {
   //const { id, productName, name, img, badge, price, color, des, description} = productInfo;//
@@ -191,83 +192,6 @@ const ProductInfo = ({ productInfo }) => {
 
     return <>{descriptionContent}</>;
   };
-
-//   const handleAddToCart = async () => {
-//     console.log('showStatus:', isLoggedIn);
-//     if (!isLoggedIn) {
-//         Swal.fire({
-//             title: "Please Login",
-//             text: "You need to login before adding items to the cart.",
-//             icon: "warning",
-//             confirmButtonText: "Login Now",
-//             confirmButtonColor: "#3085d6",
-//         }).then((result) => {
-//             if (result.isConfirmed) {
-//                 navigate('/signin');
-//             }
-//         });
-//     } else {
-//         try {
-//             const userId = localStorage.getItem('user_id'); // หรือดึงจาก Context
-//             const { id, productName, name, img, badge, price, color, des, description} = productInfo;
-           
-//             console.log("localStorage:", userId);
-//             if (!userId) {
-//               // แจ้งให้ผู้ใช้ล็อกอินหรือแสดงข้อผิดพลาด
-//               toast.error("Failed to add product to the cart");
-//               return;
-//             }
-//             //const { id, productName, name, img, badge, price, color, des, description} = productInfo;
-//             console.log("Product Info:", id, productName);
-
-//             // เรียก API เพื่อเพิ่มสินค้าลงฐานข้อมูล
-//             const response = await axios.post(`${BASE_URL}/api/cart/add`, {
-//                 userId,
-//                 productId: id,
-//                 quantity: 1, // หรือระบุจำนวนที่ผู้ใช้เลือก
-//             });
-//             console.log("Response from API:", response);
-
-//             if (response.status !== 200) {
-//               throw new Error('Failed to add item to cart');
-//             }
-
-//             // เพิ่มสินค้าไปยัง CartContext
-//               addToCart({
-//                 _id: id,
-//                 productName,
-//                 name,
-//                 quantity: 1,
-//                 image: img,
-//                 badge,
-//                 price,
-//                 colors: color,
-//                 des,
-//                 description,
-//               });
-
-//             // เพิ่มสินค้าไปยัง Redux Store
-//             dispatch(
-//                 setCart({
-//                     _id: id,
-//                     productName,
-//                     name,
-//                     quantity: 1,
-//                     image: img,
-//                     badge,
-//                     price,
-//                     colors: color,
-//                 })
-//             );
-
-//             toast.success("Product added to the cart");
-//         } catch (error) {
-//             console.error("Error adding product to cart:", error);
-//             toast.error("Failed to add product to the cart");
-//         }
-//     }
-// };
-
 
   const handleAddToCart = async() => {
     console.log('showStatus:',isLoggedIn);
@@ -343,82 +267,23 @@ const ProductInfo = ({ productInfo }) => {
     }
 
 
-  // const handleAddToCart = async (event) => {
-  //   event.preventDefault();
-  
-  //   if (!isLoggedIn) {
-  //     Swal.fire({
-  //       title: "Please Login",
-  //       text: "You need to login before adding items to the cart.",
-  //       icon: "warning",
-  //       confirmButtonText: "Login Now",
-  //       confirmButtonColor: "#3085d6",
-  //     }).then((result) => {
-  //       if (result.isConfirmed) {
-  //         navigate('/signin');
-  //       }
-  //     });
-  //   } else {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       const userId = localStorage.getItem("user_id");
-  //       const productid = productInfo?.id; // ใช้ค่า productInfo โดยตรง
-  //       const quantityD = productInfo?.quantity || 1; // ตั้งค่าเริ่มต้น
-  
-  //       if (!userId || !productid) {
-  //         throw new Error("Missing required data");
-  //       }
-  
-  //       const cartItem = {
-  //         user_id: userId,
-  //         product_id: productid,
-  //         quantity_id: quantityD,
-  //       };
-  
-  //       console.log("Cart item:", cartItem);
-  
-  //       const response = await axios.post(`${BASE_URL}/api/cart/add`, cartItem, {
-  //         headers: { Authorization: `Bearer ${token}` },
-  //       });
-  
-  //       console.log("API Response:", response.data);
-  //       dispatch(addToCart(cartItem));
-  //       toast.success("Product added to the cart");
-  //     } catch (error) {
-  //       console.error("Error adding product to cart:", error);
-  //       toast.error("Failed to add product to the cart");
-  //     }
-  //   }
-  // };
-  
-
-
   return (
     <div className="flex flex-col gap-5">
+
+    {/* <Image className="w-full h-full object-cover" imgSrc={productInfo.img || `${BASE_URL}/images/product/${productInfo.img}`} /> ++ object-cover */}
+      
       <h2 className="text-4xl font-semibold">{productInfo.productName}</h2>
       <h2 className="text-4xl font-semibold">{productInfo.name}</h2>
       <p className="text-2xl font-semibold">
         {/* {productInfo.price} Dt */}
-        ${parseFloat(productInfo.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} Dt
-        <span className="text-xl font-semibold line-through ml-2">540</span>
+        ฿{parseFloat(productInfo.price).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")} บาท
+        {/* <span className="text-xl font-semibold line-through ml-2">540</span>
         <span className="text-xs ml-2 inline-flex items-center px-3 py-1 rounded-full bg-green-600 text-white">
           Save 100
-        </span>
+        </span> */}
       </p>
       <hr />
       
-      {/* แสดงผล des
-      <p className="text-base text-gray-600">
-        <strong>Description (des):</strong>
-        {renderDescription(productInfo.des)}
-      </p>
-      <hr />
-      {/* แสดงผล description 
-      <p className="text-base text-gray-600">
-        <strong>Description (description):</strong>
-        {renderDescription(productInfo.description)}
-      </p> */}
-
 
       {/* แสดงผล des ถ้ามีค่า */}
       {productInfo.des && (
@@ -443,7 +308,7 @@ const ProductInfo = ({ productInfo }) => {
 
       <p className="text-base text-green-600 font-medium">En Stock</p>
       <p className="font-medium text-lg">
-        <span className="font-normal">Colors:</span> {productInfo.color}
+        {/* <span className="font-normal">Colors:</span> {productInfo.color} */}
       </p>
 
       <button

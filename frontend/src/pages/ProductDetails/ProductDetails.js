@@ -7,6 +7,8 @@ import { FaDownload } from "react-icons/fa";
 // import { motion } from "framer-motion"; // Import motion for animation
 // import emptyCart from "../../assets/images/emptyCart.png"; // Define the emptyCart image (adjust the path as necessary)
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const tabs = [
   {
     id: "Fiche Technique",
@@ -38,6 +40,7 @@ const tabs = [
 const ProductDetails = () => {
   const location = useLocation();
   const [prevLocation, setPrevLocation] = useState("");
+  // const [productInfo, setProductInfo] = useState({});
   const [productInfo, setProductInfo] = useState([]);
   const [activeTab, setActiveTab] = useState(tabs[0].id);
 
@@ -54,6 +57,17 @@ const ProductDetails = () => {
     setPrevLocation(location.pathname);
   }, [location, productInfo.ficheTech]);
 
+
+  // useEffect(() => {
+  //   if (location.state && location.state.item) {
+  //     setProductInfo(location.state.item);
+  //   } else {
+  //     // ถ้าไม่มี item ให้กำหนดค่า default
+  //     setProductInfo({});
+  //   }
+  //   setPrevLocation(location.pathname);
+  // }, [location]);
+
   return (  
   <>
     {/* {isLoggedIn ? ( */}
@@ -66,8 +80,10 @@ const ProductDetails = () => {
           <div className="h-full xl:col-span-2">
             <img
               className="w-full h-full "
-              src={productInfo.img}
-              alt={productInfo.img}
+              src={productInfo.img || `${BASE_URL}/images/product/${productInfo.image}`}
+              alt={productInfo.img || "product image"}
+              // src={productInfo.img}
+              // alt={productInfo.img}
             />
           </div>
           <div className="h-full w-full md:col-span-2 xl:col-span-4 xl:px-4 flex flex-col gap-6 justify-center">

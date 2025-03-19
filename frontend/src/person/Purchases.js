@@ -91,7 +91,7 @@ const Purchases = () => {
                         ฿{order.finalAmount}
                       </p>
                     </div>
-                    <div className="mt-3 flex space-x-3">
+                    {/* <div className="mt-3 flex space-x-3">
                       <button className="bg-orange-500 text-white px-4 py-2 rounded shadow hover:bg-orange-600">
                         ให้คะแนน
                       </button>
@@ -101,7 +101,7 @@ const Purchases = () => {
                       <button className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600">
                         ซื้ออีกครั้ง
                       </button>
-                    </div>
+                    </div> */}
                   </div>
                 ))}
               </div>
